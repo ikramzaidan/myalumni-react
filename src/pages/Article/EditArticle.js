@@ -75,7 +75,7 @@ const EditArticle = () => {
             credentials: "include",
         }
 
-        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
+        fetch(`https://alumnihub.site/articles/${id}`, requestOptions)
             .then((response) => {if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -102,7 +102,7 @@ const EditArticle = () => {
             headers: headers,
         }
 
-        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
+        fetch(`https://alumnihub.site/articles/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -132,13 +132,13 @@ const EditArticle = () => {
                             credentials: "include",
                         }
 
-                        fetch('http://localhost:8080/upload_image', requestOptions)
+                        fetch(`https://alumnihub.site/upload_image`, requestOptions)
                         .then((response => response.json()))
                         .then((data) => {
                             if (data.error) {
                                 console.log(data.error);
                             } else {
-                                resolve({ default: `http://localhost:8080/${data.file_path}` });
+                                resolve({ default: `https://alumnihub.site/${data.file_path}` });
                             }
                         })
                         .catch(err => {
@@ -183,7 +183,7 @@ const EditArticle = () => {
             headers: headers,
         }
 
-        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
+        fetch(`https://alumnihub.site/articles/${id}/show`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setArticle(data);
@@ -198,7 +198,7 @@ const EditArticle = () => {
     return (
         <>
             <div className="flex justify-between items-center w-full mb-5">
-                <h2 className="text-lg font-bold">Articles</h2>
+                <h2 className="text-lg font-bold">Artikel</h2>
             </div>
             <form onSubmit={handleSubmit}>
                 <div className="flex justify-between items-center gap-2.5 border rounded-xl shadow-md px-5 py-3 mb-3">

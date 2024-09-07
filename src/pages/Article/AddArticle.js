@@ -75,7 +75,7 @@ const AddArticle = () => {
             credentials: "include",
         }
 
-        fetch('http://localhost:8080/articles/create', requestOptions)
+        fetch(`https://alumnihub.site/articles/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -107,13 +107,13 @@ const AddArticle = () => {
                             credentials: "include",
                         }
 
-                        fetch('http://localhost:8080/upload_image', requestOptions)
+                        fetch(`https://alumnihub.site/upload_image`, requestOptions)
                         .then((response => response.json()))
                         .then((data) => {
                             if (data.error) {
                                 console.log(data.error);
                             } else {
-                                resolve({ default: `http://localhost:8080/${data.file_path}` });
+                                resolve({ default: `https://alumnihub.site/${data.file_path}` });
                             }
                         })
                         .catch(err => {
@@ -151,7 +151,7 @@ const AddArticle = () => {
     return (
         <>
             <div className="flex justify-between items-center w-full mb-5">
-                <h2 className="text-lg font-bold">Articles</h2>
+                <h2 className="text-lg font-bold">Artikel</h2>
                 <Link to="/articles/create" className="flex invisible items-center bg-black hover:bg-gray-800 py-2 px-2 rounded-md text-xs font-semibold text-white">Create new</Link>
             </div>
             <form onSubmit={handleSubmit}>

@@ -5,10 +5,9 @@ import Loading from "./pages/Loading";
 
 const App = () => {
     const [jwtToken, setJwtToken] = useState("");
+    const [myUsername, setMyUsername] = useState();
     const [isAdmin, setIsAdmin] = useState();
     const [loading, setLoading] = useState(true);
-    const [alertMessage, setAlertMessage] = useState("");
-    const [alertClassName, setAlertClassName] = useState("hidden");
     const [tickInterval, setTickInterval ] = useState();
 
     const navigate = useNavigate();
@@ -19,7 +18,7 @@ const App = () => {
             credentials: "include",
         }
 
-        fetch('http://localhost:8080/logout', requestOptions)
+        fetch(`https://alumnihub.site/logout`, requestOptions)
         .catch(error => {
             console.log("error logging out", error)
         })
@@ -41,18 +40,18 @@ const App = () => {
                     credentials: "include",
                 }
 
-                fetch(`http://localhost:8080/refresh`, requestOptions)
+                fetch(`https://alumnihub.site/refresh`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.access_token) {
                         setJwtToken(data.access_token);
                         const decodedJwt = jwtDecode(data.access_token);
-                        setIsAdmin(decodedJwt.adm);  
+                        setIsAdmin(decodedJwt.adm);
+                        setMyUsername(decodedJwt.name);  
                     }
                 })
                 .catch(error => {
                     console.log("user is not logged in", error);
-                    navigate('/login');
                 })
 
             }, 600000);
@@ -73,26 +72,26 @@ const App = () => {
                 credentials: "include",
             }
 
-            fetch(`http://localhost:8080/refresh`, requestOptions)
+            fetch(`https://alumnihub.site/refresh`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.access_token) {
                         setJwtToken(data.access_token);
                         const decodedJwt = jwtDecode(data.access_token);
-                        setIsAdmin(decodedJwt.adm); 
+                        setIsAdmin(decodedJwt.adm);
+                        setMyUsername(decodedJwt.name);
                         toggleRefresh(true);
                     }
                     setLoading(false);
                 })
                 .catch(error => {
-                    navigate('/login');
                     setLoading(false);
                 })
 
         } else {
             setLoading(false);
         }
-    }, [jwtToken, toggleRefresh, navigate]);
+    }, [jwtToken, toggleRefresh]);
 
     if (loading) {
         return (
@@ -102,7 +101,7 @@ const App = () => {
         return(
             <>
                 <Outlet context={{ 
-                    jwtToken, setJwtToken, isAdmin, setIsAdmin, toggleRefresh, logOut, alertClassName, alertMessage, setAlertClassName, setAlertMessage
+                    jwtToken, setJwtToken, isAdmin, myUsername, setIsAdmin, setMyUsername, toggleRefresh, logOut
                 }} />
             </>
         );

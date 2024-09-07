@@ -1,19 +1,21 @@
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import Input from "../../components/Input";
 import TextArea from "../../components/TextArea";
 import { useState } from "react";
-import Select from "../../components/Select";
+// import Select from "../../components/Select";
 
 const AddSurvey = () => {
     const { jwtToken } = useOutletContext();
+    const { setAlertMessage } = useOutletContext();
+
     const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();
 
-    const statusOptions = [
-        {id: "false", value: "Tidak terbatas waktu"},
-        {id: "true", value: "Terbatas waktu"},
-    ]
+    // const statusOptions = [
+    //     {id: "false", value: "Tidak terbatas waktu"},
+    //     {id: "true", value: "Terbatas waktu"},
+    // ]
 
     const hasError = (key) => {
         return errors.indexOf(key) !== -1;
@@ -22,9 +24,9 @@ const AddSurvey = () => {
     const [survey, setSurvey] = useState({
         title: "",
         description: "",
-        has_time_limit: "",
-        start_date: "",
-        end_date: "",
+        has_time_limit: "false",
+        start_date: "2022-07-20T20:00:00Z",
+        end_date: "2022-07-20T20:00:00Z",
     });
 
     const convertToFormattedDateTime = (dateTimeString) => {
@@ -83,28 +85,29 @@ const AddSurvey = () => {
             credentials: "include",
         }
 
-        fetch('http://localhost:8080/forms/create', requestOptions)
+        fetch(`https://alumnihub.site/forms/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    console.log(data.error);
+                    setAlertMessage(`Terjadi kesalahan: ${data.error}`);
                 } else {
-                    navigate('/surveys');
+                    const surveyID = data.message.split("id ")[1];
+                    navigate(`/surveys/${surveyID}`);
+                    setAlertMessage("Survei berhasil dibuat.");
                 }
             })
             .catch(err => {
-                console.log(err);
+                setAlertMessage(`Terjadi kesalahan: ${err}`);
             })
     }
 
     return (
         <>
             <div className="flex justify-between items-center w-full mb-5">
-                <h2 className="text-lg font-bold">Surveys</h2>
-                <Link to="/articles/create" className="flex items-center bg-black hover:bg-gray-800 py-2 px-2 rounded-md text-xs font-semibold text-white">Create new</Link>
+                <h2 className="text-lg font-bold">Survei</h2>
             </div>
             <div className="w-full border rounded-xl shadow-md p-5">
-                <pre>{JSON.stringify(survey, null, 3)}</pre>
+                {/* <pre>{JSON.stringify(survey, null, 3)}</pre> */}
                 <form onSubmit={handleSubmit}>
                     <Input
                         title="Judul"
@@ -123,7 +126,7 @@ const AddSurvey = () => {
                         onChange={handleChange("description")}
                         errorMsg={hasError("description") ? "Please enter a description" : ""}
                     />
-                    <Select 
+                    {/* <Select 
                         title="Timer"
                         name={"has_time_limit"}
                         className="w-full px-2 py-2 border border-gray-300 rounded-md appearance-none"
@@ -151,8 +154,8 @@ const AddSurvey = () => {
                             onChange={handleChange("end_date")}
                             errorMsg={hasError("end_date") ? "Please enter a time" : ""}
                         />
-                    </div>
-                    <button className="bg-black hover:bg-gray-800 py-2 px-2 rounded-md text-xs font-semibold text-white">Save</button>
+                    </div> */}
+                    <button className="py-2 px-3 bg-red-500 hover:bg-red-400 text-white text-sm font-medium rounded-md">Simpan</button>
                 </form>
             </div>
         </>

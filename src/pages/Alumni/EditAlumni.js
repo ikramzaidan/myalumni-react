@@ -1,30 +1,27 @@
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../../components/Input";
 import { useEffect, useState } from "react";
-import Select from "../../components/Select";
+import SelectInput from "../../components/SelectInput";
 
 const EditAlumni = () => {
     const { jwtToken } = useOutletContext();
+    const { isAdmin } = useOutletContext();
+    const [student, setStudent] = useState({});
     const [errors, setErrors] = useState([]);
-
-    const navigate = useNavigate();
+    
     let { id } = useParams();
 
-    const formatDate = (dateString) => {
-        if (student.date_of_birth) {
-            const date = new Date(dateString);
-            const formattedDate = date.toISOString().slice(0, 10);
-            return formattedDate;
-        } else {
-            return null
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!isAdmin) {
+            navigate('/');
         }
-    }
+    });
 
     const hasError = (key) => {
         return errors.indexOf(key) !== -1;
     }
-
-    const [student, setStudent] = useState({});
 
     const handleChange = () => (event) => {
         const { name, value } = event.target;
@@ -72,7 +69,7 @@ const EditAlumni = () => {
             credentials: "include",
         }
 
-        fetch(`http://localhost:8080/alumni/${student.id}`, requestOptions)
+        fetch(`https://alumnihub.site/alumni/${student.id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -96,7 +93,7 @@ const EditAlumni = () => {
             headers: headers,
         }
 
-        fetch(`http://localhost:8080/alumni/${id}`, requestOptions)
+        fetch(`https://alumnihub.site/alumni/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setStudent(data);
@@ -113,7 +110,8 @@ const EditAlumni = () => {
                 <h2 className="text-lg font-bold">Alumni</h2>
             </div>
             <div className="w-full border rounded-xl shadow-md p-5">
-                <pre>{JSON.stringify(student, null, 3)}</pre>
+                {/* <pre>{JSON.stringify(student, null, 3)}</pre> */}
+                {student && Object.keys(student).length !== 0 ? (
                 <form onSubmit={handleSubmit}>
                     <Input
                         title="Nama"
@@ -121,42 +119,40 @@ const EditAlumni = () => {
                         name="name"
                         placeHolder="Nama"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        onChange={handleChange()}
+                        onChange={handleChange("name")}
                         errorMsg={hasError("name") ? "Please enter a name" : ""}
                         value={student.name}
                     />
                     <div className="grid grid-cols-2 gap-3">
                         <Input
-                            title="Tempat Lahir"
+                            title="NISN"
                             type="text"
-                            name="place_of_birth"
-                            placeHolder="Tempat Lahir"
+                            name="nisn"
+                            placeHolder="NISN"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            onChange={handleChange()}
-                            errorMsg={hasError("place_of_birth") ? "Please enter a place" : ""}
-                            value={student.place_of_birth}
+                            value={student.nisn}
+                            onChange={handleChange("nisn")}
+                            errorMsg={hasError("nisn") ? "Please enter a nisn" : ""}
                         />
                         <Input
-                            title="Tanggal Lahir"
-                            type="date"
-                            name="date_of_birth"
-                            placeHolder="Tanggal Lahir"
+                            title="NIS"
+                            type="text"
+                            name="nis"
+                            placeHolder="NIS"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            onChange={handleChange()}
-                            errorMsg={hasError("date_of_birth") ? "Please enter a date" : ""}
-                            value={formatDate(student.date_of_birth)}
+                            value={student.nis}
+                            onChange={handleChange("nis")}
+                            errorMsg={hasError("nis") ? "Please enter a nis" : ""}
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <Select 
+                        <SelectInput 
                             title="Jenis Kelamin"
-                            name={"gender"}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none"
-                            options={[
-                                {id: "M", value: "Laki-laki", selected: student.gender === "M" ? true : false },
-                                {id: "F", value: "Perempuan", selected: student.gender === "F" ? true : false },
-                            ]}
-                            onChange={handleChange()}
+                            name="gender"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            options={[{value: "M", label: "Laki-laki"},{value: "F", label: "Perempuan"}]}
+                            defaultValue={student.gender === "M" ? "M" : "F"}
+                            onChange={handleChange("gender")}
                             placeHolder={"Jenis Kelamin"}
                             errorMsg={hasError("gender") ? "Please select a gender" : ""}
                         />
@@ -171,8 +167,9 @@ const EditAlumni = () => {
                             value={student.phone}
                         />
                     </div>
-                    <button className="bg-black hover:bg-gray-800 py-2 px-2 rounded-md text-xs font-semibold text-white">Save</button>
+                    <button type="submit" className="py-2 px-3 bg-red-500 hover:bg-red-400 text-white text-sm font-medium rounded-md">Simpan</button>
                 </form>
+                ) : ("")}
             </div>
         </>
     );
