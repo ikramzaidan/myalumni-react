@@ -85,7 +85,7 @@ const AddSurvey = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forms/create`, requestOptions)
+        fetch(`http://localhost:8080/forms/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

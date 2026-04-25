@@ -28,7 +28,7 @@ const Home = () => {
         }
 
         if (isAdmin) {
-            fetch(`https://alumnihub.site/dashboard`, requestOptions)
+            fetch(`http://localhost:8080/dashboard`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setDashboard(data);
@@ -38,7 +38,7 @@ const Home = () => {
             })
         }
 
-        fetch(`https://alumnihub.site/forums`, requestOptions)
+        fetch(`http://localhost:8080/forums`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setForums(data);
@@ -47,7 +47,7 @@ const Home = () => {
                 console.log(err);
             })
 
-        fetch(`https://alumnihub.site/likes`, requestOptions)
+        fetch(`http://localhost:8080/likes`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setLikes(data);
@@ -57,7 +57,7 @@ const Home = () => {
                 console.log(err);
             })
 
-        fetch(`https://alumnihub.site/articles`, requestOptions)
+        fetch(`http://localhost:8080/articles`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setArticles(data)
@@ -82,7 +82,7 @@ const Home = () => {
         }
 
         if (likedForumIds.has(id)) {
-            fetch(`https://alumnihub.site/forums/${id}/unlike`, requestOptions)
+            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
@@ -95,7 +95,7 @@ const Home = () => {
                     console.log(err);
                 })
         } else {
-            fetch(`https://alumnihub.site/forums/${id}/like`, requestOptions)
+            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
@@ -139,7 +139,7 @@ const Home = () => {
                                 <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
                                     <div className="flex gap-2 items-center">
                                         {q.user_photo ? (
-                                            <img src={'https://alumnihub.site/' + q.user_photo} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
+                                            <img src={'http://localhost:8080/' + q.user_photo} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
                                         ) : (
                                             <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
@@ -220,7 +220,7 @@ const Home = () => {
                                 <div key={a.id} className="border rounded-xl shadow-md p-4">
                                     <div className="flex flex-col gap-3">
                                         <div className="flex">
-                                            <img src={a.image ? a.image : "https://alumnihub.site/public/no-image.png"} className="aspect-[16/9] object-cover rounded-lg" alt={a.title}></img>
+                                            <img src={a.image ? a.image : "http://localhost:8080/public/no-image.png"} className="aspect-[16/9] object-cover rounded-lg" alt={a.title}></img>
                                         </div>
                                         <div className="flex flex-col justify-start pe-3">
                                             <Link to={`/articles/${a.id}`}><h3 className="text-xl font-bold line-clamp-1 capitalize">{a.title}</h3></Link>
@@ -273,7 +273,7 @@ const Home = () => {
                         {dashboard.profiles.map((a) => (
                         <div className="flex flex-col border shadow rounded-xl bg-white p-4 items-center" key={a.id}>
                             <div className="bg-gray-300 rounded-full w-full h-auto aspect-square overflow-hidden border-white mb-3">
-                                <img src={a.photo ? `https://alumnihub.site/${a.photo}` : "https://alumnihub.site/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
+                                <img src={a.photo ? `http://localhost:8080/${a.photo}` : "http://localhost:8080/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
                             </div>
                             <div className="font-medium mb-2 line-clamp-1">{a.user_name}</div>
                             <Link to={`/profile/${a.user_username}`} className="w-full bg-black py-2 px-3 rounded-md text-center text-xs font-semibold text-white">View Profile</Link>

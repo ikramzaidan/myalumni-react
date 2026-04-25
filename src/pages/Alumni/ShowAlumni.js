@@ -19,7 +19,7 @@ const ShowAlummi = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/alumni/${id}`, requestOptions)
+        fetch(`http://localhost:8080/alumni/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -42,7 +42,7 @@ const ShowAlummi = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/alumni/${id}`, requestOptions)
+        fetch(`http://localhost:8080/alumni/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setStudent(data);

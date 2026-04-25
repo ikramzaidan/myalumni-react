@@ -18,7 +18,7 @@ const ProfileBar = (props) => {
                 <div className="max-w-[150px] font-semibold me-1 truncate ...">{props.userName}</div>
                 <div className="flex gap-1 items-center">
                     {props.userPhoto !== "" ? (
-                        <img src={"https://alumnihub.site/" + props.userPhoto} className="object-cover w-8 h-8 rounded-full" alt="Profile" />
+                        <img src={"http://localhost:8080/" + props.userPhoto} className="object-cover w-8 h-8 rounded-full" alt="Profile" />
                     ) : (
                         <svg className="w-8 h-8 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>

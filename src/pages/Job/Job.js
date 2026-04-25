@@ -46,7 +46,7 @@ const Job = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/jobs/${id}`, requestOptions)
+        fetch(`http://localhost:8080/jobs/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if(data.error === true) {

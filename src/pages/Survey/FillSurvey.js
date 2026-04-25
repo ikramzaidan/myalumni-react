@@ -34,7 +34,7 @@ const FillSurvey = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/forms/${id}/show`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}/show`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 // Set survey data
@@ -139,7 +139,7 @@ const FillSurvey = () => {
                 credentials: "include",
             }
 
-            fetch(`https://alumnihub.site/forms/${id}/submit`, requestOptions)
+            fetch(`http://localhost:8080/forms/${id}/submit`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {

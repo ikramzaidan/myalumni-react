@@ -17,7 +17,7 @@ const Article = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/articles/${slug}`, requestOptions)
+        fetch(`http://localhost:8080/articles/${slug}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setArticle(data);

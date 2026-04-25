@@ -48,7 +48,7 @@ const Layout = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/forms/${id}`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -75,7 +75,7 @@ const Layout = () => {
                 headers: headers,
             }
 
-            fetch(`https://alumnihub.site/profile`, requestOptions)
+            fetch(`http://localhost:8080/profile`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {

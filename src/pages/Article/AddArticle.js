@@ -75,7 +75,7 @@ const AddArticle = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/articles/create`, requestOptions)
+        fetch(`http://localhost:8080/articles/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -107,13 +107,13 @@ const AddArticle = () => {
                             credentials: "include",
                         }
 
-                        fetch(`https://alumnihub.site/upload_image`, requestOptions)
+                        fetch(`http://localhost:8080/upload_image`, requestOptions)
                         .then((response => response.json()))
                         .then((data) => {
                             if (data.error) {
                                 console.log(data.error);
                             } else {
-                                resolve({ default: `https://alumnihub.site/${data.file_path}` });
+                                resolve({ default: `http://localhost:8080/${data.file_path}` });
                             }
                         })
                         .catch(err => {

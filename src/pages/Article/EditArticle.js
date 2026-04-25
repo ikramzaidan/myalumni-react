@@ -75,7 +75,7 @@ const EditArticle = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/articles/${id}`, requestOptions)
+        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
             .then((response) => {if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -102,7 +102,7 @@ const EditArticle = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/articles/${id}`, requestOptions)
+        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -132,13 +132,13 @@ const EditArticle = () => {
                             credentials: "include",
                         }
 
-                        fetch(`https://alumnihub.site/upload_image`, requestOptions)
+                        fetch(`http://localhost:8080/upload_image`, requestOptions)
                         .then((response => response.json()))
                         .then((data) => {
                             if (data.error) {
                                 console.log(data.error);
                             } else {
-                                resolve({ default: `https://alumnihub.site/${data.file_path}` });
+                                resolve({ default: `http://localhost:8080/${data.file_path}` });
                             }
                         })
                         .catch(err => {
@@ -183,7 +183,7 @@ const EditArticle = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/articles/${id}/show`, requestOptions)
+        fetch(`http://localhost:8080/articles/${id}/show`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setArticle(data);

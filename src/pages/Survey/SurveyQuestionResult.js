@@ -28,7 +28,7 @@ const SurveyQuestionResult = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/questions/${qid}`, requestOptions)
+        fetch(`http://localhost:8080/questions/${qid}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setQuestion(data);

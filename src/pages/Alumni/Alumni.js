@@ -22,7 +22,7 @@ const Alumni = () => {
                 headers: headers,
             }
 
-            fetch(`https://alumnihub.site/alumni`, requestOptions)
+            fetch(`http://localhost:8080/alumni`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     setStudents(data);

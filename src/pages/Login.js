@@ -34,7 +34,7 @@ const Login = () => {
             body: JSON.stringify(payload),
         }
 
-        fetch(`https://alumnihub.site/authenticate`, requestOptions)
+        fetch(`http://localhost:8080/authenticate`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if(data.error) {

@@ -21,7 +21,7 @@ const Articles = () => {
                 headers: headers,
             }
 
-            fetch(`https://alumnihub.site/articles`, requestOptions)
+            fetch(`http://localhost:8080/articles`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     setArticles(data)
@@ -65,7 +65,7 @@ const Articles = () => {
                         <div key={a.id} className="border rounded-xl shadow-md p-4">
                             <div className="flex flex-col sm:grid sm:grid-cols-9 gap-4">
                                 <div className="sm:col-span-3 xl:col-span-1">
-                                    <img src={a.image ? a.image : "https://alumnihub.site/public/no-image.png"} className="aspect-[16/9] xl:aspect-square object-cover rounded-lg" alt={a.title}></img>
+                                    <img src={a.image ? a.image : "http://localhost:8080/public/no-image.png"} className="aspect-[16/9] xl:aspect-square object-cover rounded-lg" alt={a.title}></img>
                                 </div>
                                 <div className="sm:col-span-6 xl:col-span-7 flex flex-col justify-center">
                                     <div className="text-xs text-orange-500 font-medium capitalize mb-0">{a.status}</div>
@@ -86,7 +86,7 @@ const Articles = () => {
                         <div key={a.id} className="border rounded-xl shadow-md p-4">
                             <div className="flex flex-col md:grid md:grid-cols-12 gap-4">
                                 <div className="md:col-span-4 xl:col-span-2">
-                                    <img src={a.image ? a.image : "https://alumnihub.site/public/no-image.png"} className="aspect-[16/9] xl:aspect-square object-cover rounded-lg" alt={a.title}></img>
+                                    <img src={a.image ? a.image : "http://localhost:8080/public/no-image.png"} className="aspect-[16/9] xl:aspect-square object-cover rounded-lg" alt={a.title}></img>
                                 </div>
                                 <div className="md:col-span-8 xl:col-span-10 flex flex-col justify-start pe-3">
                                     <Link to={`/articles/${a.slug}`}><h3 className="text-xl font-bold line-clamp-1 capitalize">{a.title}</h3></Link>

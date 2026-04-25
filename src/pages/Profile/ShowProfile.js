@@ -30,7 +30,7 @@ const ShowProfile = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/profile/${username}`, requestOptions)
+        fetch(`http://localhost:8080/profile/${username}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setProfile({
@@ -54,7 +54,7 @@ const ShowProfile = () => {
                 console.log(err);
             });
 
-        fetch(`https://alumnihub.site/forums/user/${username}`, requestOptions)
+        fetch(`http://localhost:8080/forums/user/${username}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setForums(data);
@@ -63,7 +63,7 @@ const ShowProfile = () => {
                 console.log(err);
             });
 
-        fetch(`https://alumnihub.site/likes`, requestOptions)
+        fetch(`http://localhost:8080/likes`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setLikes(data);
@@ -89,7 +89,7 @@ const ShowProfile = () => {
         }
 
         if (likedForumIds.has(id)) {
-            fetch(`https://alumnihub.site/forums/${id}/unlike`, requestOptions)
+            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
@@ -102,7 +102,7 @@ const ShowProfile = () => {
                     console.log(err);
                 })
         } else {
-            fetch(`https://alumnihub.site/forums/${id}/like`, requestOptions)
+            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
@@ -162,7 +162,7 @@ const ShowProfile = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forums/${comment.forum_id}/reply`, requestOptions)
+        fetch(`http://localhost:8080/forums/${comment.forum_id}/reply`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -186,7 +186,7 @@ const ShowProfile = () => {
                     <div className="absolute -z-10 rounded-xl rounded-b-none w-full h-32 bg-red-400"></div>
                         <div className="flex flex-col p-5 pt-16">
                             <div className="bg-gray-300 rounded-full w-36 h-36 aspect-square overflow-hidden border-4 border-white">
-                                <img src={profile.photo && profile.photo !== "" ? `https://alumnihub.site/${profile.photo}` : "https://alumnihub.site/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
+                                <img src={profile.photo && profile.photo !== "" ? `http://localhost:8080/${profile.photo}` : "http://localhost:8080/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
                             </div>
                             <div className="flex flex-col px-1">
                                 <h3 className="text-xl font-bold mt-5">{ profile.user_name }</h3>

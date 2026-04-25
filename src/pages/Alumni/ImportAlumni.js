@@ -42,7 +42,7 @@ const ImportAlummi = () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch(`https://alumnihub.site/alumni/import`, {
+            const response = await fetch(`http://localhost:8080/alumni/import`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${jwtToken}`
@@ -77,7 +77,7 @@ const ImportAlummi = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/alumni/import/save`, requestOptions)
+        fetch(`http://localhost:8080/alumni/import/save`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

@@ -77,7 +77,7 @@ const AddAlummi = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/alumni/create`, requestOptions)
+        fetch(`http://localhost:8080/alumni/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

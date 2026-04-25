@@ -150,7 +150,7 @@ const Survey = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/questions/${idq}`, requestOptions)
+        fetch(`http://localhost:8080/questions/${idq}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -184,7 +184,7 @@ const Survey = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/questions/${idq}`, requestOptions)
+        fetch(`http://localhost:8080/questions/${idq}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

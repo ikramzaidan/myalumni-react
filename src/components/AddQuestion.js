@@ -68,7 +68,7 @@ const AddQuestion = (props) => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/questions/create`, requestOptions)
+        fetch(`http://localhost:8080/questions/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

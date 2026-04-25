@@ -33,7 +33,7 @@ const Profile = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/profile`, requestOptions)
+        fetch(`http://localhost:8080/profile`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setProfile({
@@ -113,7 +113,7 @@ const Profile = () => {
                 credentials: "include",
             }
 
-            fetch(`https://alumnihub.site/upload_image`, firstRequestOptions)
+            fetch(`http://localhost:8080/upload_image`, firstRequestOptions)
             .then((response => response.json()))
             .then((data) => {
                 if (data.error) {
@@ -135,7 +135,7 @@ const Profile = () => {
                             credentials: "include",
                         };
 
-                        fetch(`https://alumnihub.site/profile/update`, requestOptions)
+                        fetch(`http://localhost:8080/profile/update`, requestOptions)
                         .then((response) => response.json())
                         .then((data) => {
                             if (data.error) {
@@ -173,7 +173,7 @@ const Profile = () => {
                 credentials: "include",
             };
 
-            fetch(`https://alumnihub.site/profile/update`, requestOptions)
+            fetch(`http://localhost:8080/profile/update`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -224,7 +224,7 @@ const Profile = () => {
             credentials: "include",
         };
 
-        fetch(`https://alumnihub.site/profile/educations/create`, requestOptions)
+        fetch(`http://localhost:8080/profile/educations/create`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
             if (data.error) {
@@ -258,7 +258,7 @@ const Profile = () => {
             credentials: "include",
         };
 
-        fetch(`https://alumnihub.site/profile/educations/${id}`, requestOptions)
+        fetch(`http://localhost:8080/profile/educations/${id}`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
             if (data.error) {
@@ -291,7 +291,7 @@ const Profile = () => {
             credentials: "include",
         };
 
-        fetch(`https://alumnihub.site/profile/jobs/create`, requestOptions)
+        fetch(`http://localhost:8080/profile/jobs/create`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
             if (data.error) {
@@ -325,7 +325,7 @@ const Profile = () => {
             credentials: "include",
         };
 
-        fetch(`https://alumnihub.site/profile/jobs/${id}`, requestOptions)
+        fetch(`http://localhost:8080/profile/jobs/${id}`, requestOptions)
         .then((response) => response.json())
         .then((data) => {
             if (data.error) {
@@ -358,7 +358,7 @@ const Profile = () => {
                                     {selectedImage ? (
                                         <img src={selectedImage} className="object-cover w-full h-full" alt="Profile" />
                                     ) : (
-                                        <img src={profile.photo !== "" ? `https://alumnihub.site/${profile.photo}` : "https://alumnihub.site/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
+                                        <img src={profile.photo !== "" ? `http://localhost:8080/${profile.photo}` : "http://localhost:8080/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
                                     )}
                                     <div className="absolute aspect-square rounded-full inset-0 flex justify-center items-center opacity-0 hover:bg-gradient-to-t hover:from-black hover:to-black/50 hover:opacity-100 transition-opacity duration-300">
                                         <div className="flex gap-0.5 text-white">

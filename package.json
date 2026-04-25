@@ -2,7 +2,7 @@
   "name": "my-alumni",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://alumnihub.site",
+  "proxy": "http://localhost:8080/",
   "dependencies": {
     "@ckeditor/ckeditor5-react": "^6.2.0",
     "@testing-library/jest-dom": "^5.17.0",

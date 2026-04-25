@@ -32,7 +32,7 @@ const Jobs = () => {
                 headers: headers,
             }
 
-            fetch(`https://alumnihub.site/jobs`, requestOptions)
+            fetch(`http://localhost:8080/jobs`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     setJobs(data);
@@ -123,7 +123,7 @@ const Jobs = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/jobs/create`, requestOptions)
+        fetch(`http://localhost:8080/jobs/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

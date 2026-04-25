@@ -70,7 +70,7 @@ const Register = () => {
                 body: JSON.stringify(payload),
             }
     
-            fetch(`https://alumnihub.site/register_check`, requestOptions)
+            fetch(`http://localhost:8080/register_check`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if(data.error) {
@@ -112,7 +112,7 @@ const Register = () => {
         }
 
         if (passwordMatched) {
-            fetch(`https://alumnihub.site/register`, requestOptions)
+            fetch(`http://localhost:8080/register`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if(data.error) {

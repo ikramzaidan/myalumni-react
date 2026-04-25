@@ -18,7 +18,7 @@ const App = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/logout`, requestOptions)
+        fetch(`http://localhost:8080/logout`, requestOptions)
         .catch(error => {
             console.log("error logging out", error)
         })
@@ -40,7 +40,7 @@ const App = () => {
                     credentials: "include",
                 }
 
-                fetch(`https://alumnihub.site/refresh`, requestOptions)
+                fetch(`http://localhost:8080/refresh`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.access_token) {
@@ -72,7 +72,7 @@ const App = () => {
                 credentials: "include",
             }
 
-            fetch(`https://alumnihub.site/refresh`, requestOptions)
+            fetch(`http://localhost:8080/refresh`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.access_token) {

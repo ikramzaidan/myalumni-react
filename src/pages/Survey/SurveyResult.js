@@ -26,7 +26,7 @@ const SurveyResult = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/forms/${id}/answers`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}/answers`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setSurvey(data);

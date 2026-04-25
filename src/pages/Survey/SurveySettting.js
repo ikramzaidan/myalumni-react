@@ -115,7 +115,7 @@ const SurveySetting = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forms/${id}`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {

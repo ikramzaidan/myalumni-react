@@ -32,7 +32,7 @@ const Forums = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/forums`, requestOptions)
+        fetch(`http://localhost:8080/forums`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setForums(data);
@@ -44,7 +44,7 @@ const Forums = () => {
                 console.log(err);
             })
 
-        fetch(`https://alumnihub.site/likes`, requestOptions)
+        fetch(`http://localhost:8080/likes`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setLikes(data);
@@ -108,7 +108,7 @@ const Forums = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forums/create`, requestOptions)
+        fetch(`http://localhost:8080/forums/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -143,7 +143,7 @@ const Forums = () => {
         }
 
         if (likedForumIds.has(id)) {
-            fetch(`https://alumnihub.site/forums/${id}/unlike`, requestOptions)
+            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
@@ -156,7 +156,7 @@ const Forums = () => {
                     console.log(err);
                 })
         } else {
-            fetch(`https://alumnihub.site/forums/${id}/like`, requestOptions)
+            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
@@ -207,7 +207,7 @@ const Forums = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forums/${comment.forum_id}/reply`, requestOptions)
+        fetch(`http://localhost:8080/forums/${comment.forum_id}/reply`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -263,7 +263,7 @@ const Forums = () => {
                             <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
                                 <div className="flex gap-2 items-center">
                                     {q.user_photo ? (
-                                        <img src={'https://alumnihub.site/' + q.user_photo} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
+                                        <img src={'http://localhost:8080/' + q.user_photo} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
                                     ) : (
                                         <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>

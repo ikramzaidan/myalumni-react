@@ -61,7 +61,7 @@ const SurveyLayout = () => {
             headers: headers,
         }
 
-        fetch(`https://alumnihub.site/forms/${id}/show`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}/show`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 setSurvey(data);
@@ -92,7 +92,7 @@ const SurveyLayout = () => {
                 credentials: "include",
             }
 
-            fetch(`https://alumnihub.site/questions/create`, requestOptions)
+            fetch(`http://localhost:8080/questions/create`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -177,7 +177,7 @@ const SurveyLayout = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forms/${id}`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}`, requestOptions)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
@@ -209,7 +209,7 @@ const SurveyLayout = () => {
             credentials: "include",
         }
 
-        fetch(`https://alumnihub.site/forms/${id}/answers/export`, requestOptions)
+        fetch(`http://localhost:8080/forms/${id}/answers/export`, requestOptions)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

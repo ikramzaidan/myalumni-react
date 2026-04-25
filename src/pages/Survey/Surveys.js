@@ -22,7 +22,7 @@ const Surveys = () => {
                 headers: headers,
             }
 
-            fetch(`https://alumnihub.site/forms`, requestOptions)
+            fetch(`http://localhost:8080/forms`, requestOptions)
                 .then((response) => response.json())
                 .then((data) => {
                     setSurveys(data);
@@ -41,7 +41,7 @@ const Surveys = () => {
                     headers: headers,
                 }
 
-                fetch(`https://alumnihub.site/answers`, requestOptions)
+                fetch(`http://localhost:8080/answers`, requestOptions)
                     .then((response) => response.json())
                     .then((data) => {
                         setAnswers(data);
