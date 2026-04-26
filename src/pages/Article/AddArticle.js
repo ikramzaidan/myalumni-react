@@ -5,11 +5,14 @@ import slugify from 'slugify';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-custom-build/build/ckeditor';
 import classNames from 'classnames';
+import { apiPost, apiUpload } from '../../api/apiClient';
+import { ARTICLES, PROFILE } from '../../api/endpoints';
 
 const AddArticle = () => {
     const { jwtToken } = useOutletContext();
     const [errors, setErrors] = useState([]);
     const [isSwitched, setIsSwithed] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const [article, setArticle] = useState({
@@ -41,7 +44,7 @@ const AddArticle = () => {
         return errors.indexOf(key) !== -1;
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         let errors = [];
@@ -62,31 +65,21 @@ const AddArticle = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestBody = article;
-
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
+        setIsLoading(true);
+        
+        try {
+            const data = await apiPost(ARTICLES.CREATE, article);
+            
+            if (data.error) {
+                console.log(data.error);
+            } else {
+                navigate('/articles');
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setIsLoading(false);
         }
-
-        fetch(`http://localhost:8080/articles/create`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    navigate('/articles');
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
     }
 
     const imageUploadAdapter = (loader) => {
@@ -97,18 +90,7 @@ const AddArticle = () => {
                     loader.file.then((file) => {
                         body.append("image", file);
 
-                        const headers = new Headers();
-                        headers.append("Authorization", "Bearer " + jwtToken);
-
-                        const requestOptions = {
-                            body: body,
-                            method: "POST",
-                            headers: headers,
-                            credentials: "include",
-                        }
-
-                        fetch(`http://localhost:8080/upload_image`, requestOptions)
-                        .then((response => response.json()))
+                        apiUpload(PROFILE.UPLOAD_IMAGE, body)
                         .then((data) => {
                             if (data.error) {
                                 console.log(data.error);

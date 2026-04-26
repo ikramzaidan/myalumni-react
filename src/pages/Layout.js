@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import ProfileBar from "../components/ProfileBar";
 import { Link, Outlet, useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { IoBriefcase, IoChatbubbles, IoChevronBackOutline, IoDocumentText, IoHome, IoNewspaper, IoPeople, IoClose } from "react-icons/io5";
+import { apiGet, apiDelete } from "../api/apiClient";
+import { PROFILE, SURVEYS } from "../api/endpoints";
 
 const Layout = () => {
     const [openSide, setOpenSide] = useState(false);
@@ -39,26 +41,14 @@ const Layout = () => {
         setAlertMessage("");
     }
 
-    const handleDeleteSurvey = () => {
-        let headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken)
-
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
+    const handleDeleteSurvey = async () => {
+        try {
+            await apiDelete(SURVEYS.GET(id));
+            navigate("/surveys");
+            setOpenModal(false);
+        } catch (err) {
+            console.log(err);
         }
-
-        fetch(`http://localhost:8080/forms/${id}`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    navigate("/surveys");
-                    setOpenModal(false);
-                }
-            })
-            .catch(err => {console.log(err)});
     }
 
     useEffect(() => {
@@ -67,16 +57,7 @@ const Layout = () => {
         if (jwtToken === "") {
             navigate("/login");
         } else {
-            const headers = new Headers();
-            headers.append("Authorization", "Bearer " + jwtToken)
-
-            const requestOptions = {
-                method: "GET",
-                headers: headers,
-            }
-
-            fetch(`http://localhost:8080/profile`, requestOptions)
-                .then((response) => response.json())
+            apiGet(PROFILE.GET)
                 .then((data) => {
                     if (data.error) {
                         console.log(data.error);

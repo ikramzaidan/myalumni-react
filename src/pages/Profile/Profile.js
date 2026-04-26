@@ -4,6 +4,8 @@ import { TiPencil } from "react-icons/ti";
 import { IoAdd } from "react-icons/io5";
 import { PiGraduationCapFill, PiBriefcaseFill } from "react-icons/pi";
 import { FaTrash } from "react-icons/fa6";
+import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "../../api/apiClient";
+import { PROFILE } from "../../api/endpoints";
 
 const Profile = () => {
     const { jwtToken } = useOutletContext();
@@ -24,17 +26,7 @@ const Profile = () => {
 
     // Get data alumni saat pertama kali load
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/profile`, requestOptions)
-            .then((response) => response.json())
+        apiGet(PROFILE.GET)
             .then((data) => {
                 setProfile({
                     user_id: data.user_id || "",
@@ -97,100 +89,42 @@ const Profile = () => {
         }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         setSubmitPending(true);
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
+        try {
+            let photoPath = profile.photo;
 
-        if(image.data) {
-            const firstRequestOptions = {
-                body: image.data,
-                method: "POST",
-                headers: headers,
-                credentials: "include",
+            // Upload image first if selected
+            if (image.data) {
+                const data = await apiUpload(PROFILE.UPLOAD_IMAGE, image.data);
+                if (data.error) {
+                    console.log(data.error);
+                    setSubmitPending(false);
+                    return;
+                }
+                photoPath = data.file_path;
             }
 
-            fetch(`http://localhost:8080/upload_image`, firstRequestOptions)
-            .then((response => response.json()))
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    setSubmitPending(false);
-                } else {
-                    setProfile((prevProfile) => {
-                        const updatedProfile = { ...prevProfile, photo: data.file_path };
-
-                        // Create a new fetch request for updating the profile
-                        const headers = new Headers();
-                        headers.append("Authorization", "Bearer " + jwtToken);
-                        headers.append("Content-Type", "application/json");
-
-                        const requestOptions = {
-                            body: JSON.stringify(updatedProfile),
-                            method: "PATCH",
-                            headers: headers,
-                            credentials: "include",
-                        };
-
-                        fetch(`http://localhost:8080/profile/update`, requestOptions)
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                                setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                                setSubmitPending(false);
-                            } else {
-                                setUpdateProfile(true);
-                                setAlertMessage("Profil berhasil diperbarui.");
-                                setSubmitPending(false);
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                            setSubmitPending(false);
-                        })
-                    })
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                setSubmitPending(false);
-            })
-
-        } else {
-            const headers = new Headers();
-            headers.append("Authorization", "Bearer " + jwtToken);
-            headers.append("Content-Type", "application/json");
-
-            const requestOptions = {
-                body: JSON.stringify(profile),
-                method: "PATCH",
-                headers: headers,
-                credentials: "include",
-            };
-
-            fetch(`http://localhost:8080/profile/update`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                    setSubmitPending(false);
-                } else {
-                    setUpdateProfile(true);
-                    setAlertMessage("Profil berhasil diperbarui.");
-                    setSubmitPending(false);
-                }
-            })
-            .catch(err => {
-                console.log(err);
+            const updatedProfile = { ...profile, photo: photoPath };
+            
+            // Update profile
+            const data = await apiPut(PROFILE.UPDATE, updatedProfile);
+            
+            if (data.error) {
+                console.log(data.error);
                 setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                setSubmitPending(false);
-            })
+            } else {
+                setUpdateProfile(true);
+                setAlertMessage("Profil berhasil diperbarui.");
+            }
+        } catch (err) {
+            console.log(err);
+            setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
+        } finally {
+            setSubmitPending(false);
         }
     }
 
@@ -208,59 +142,36 @@ const Profile = () => {
         }
     };
 
-    const handleSubmitEducation = (event) => {
+    const handleSubmitEducation = async (event) => {
         event.preventDefault();
 
         setSubmitPending(true);
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
-
-        const requestOptions = {
-            body: JSON.stringify(education),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/educations/create`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
+        try {
+            const data = await apiPost(PROFILE.EDUCATIONS.CREATE, education);
+            
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Pendidikan gagal disimpan.");
-                setSubmitPending(false);
             } else {
                 setUpdateProfile(true);
                 setEducationAddSection(false);
                 setAlertMessage("Pendidikan berhasil disimpan.");
-                setSubmitPending(false);
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Pendidikan gagal disimpan.");
+        } finally {
             setSubmitPending(false);
-        })
+        }
     }
 
-    const handleDeleteEducation = (event, id) => {
+    const handleDeleteEducation = async (event, id) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
-
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/educations/${id}`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
+        try {
+            const data = await apiDelete(PROFILE.EDUCATIONS.DELETE(id));
+            
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
@@ -268,66 +179,42 @@ const Profile = () => {
                 setUpdateProfile(true);
                 setAlertMessage("Profil berhasil diperbarui.");
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-        })
+        }
     }
 
-    const handleSubmitJob = (event) => {
+    const handleSubmitJob = async (event) => {
         event.preventDefault();
 
         setSubmitPending(true);
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
-
-        const requestOptions = {
-            body: JSON.stringify(job),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/jobs/create`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
+        try {
+            const data = await apiPost(PROFILE.JOBS.CREATE, job);
+            
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Pekerjaan gagal disimpan.");
-                setSubmitPending(false);
             } else {
                 setUpdateProfile(true);
                 setJobAddSection(false);
                 setAlertMessage("Pekerjaan berhasil disimpan.");
-                setSubmitPending(false);
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Pekerjaan gagal disimpan.");
+        } finally {
             setSubmitPending(false);
-        })
+        }
     }
 
-    const handleDeleteJob = (event, id) => {
+    const handleDeleteJob = async (event, id) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
-
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/jobs/${id}`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
+        try {
+            const data = await apiDelete(PROFILE.JOBS.DELETE(id));
+            
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
@@ -335,11 +222,10 @@ const Profile = () => {
                 setUpdateProfile(true);
                 setAlertMessage("Profil berhasil diperbarui.");
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-        })
+        }
     }
 
     return (

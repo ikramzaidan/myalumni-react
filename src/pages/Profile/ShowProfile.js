@@ -4,6 +4,8 @@ import { FaFacebookF, FaInstagram, FaTiktok, FaTwitter } from "react-icons/fa6";
 import { IoChatbubbleOutline, IoHeart, IoHeartOutline, IoSend } from "react-icons/io5";
 import { PiBriefcaseFill, PiGraduationCapFill, PiNewspaperClippingFill } from "react-icons/pi";
 import DateTimeDisplay from "../../components/DateTimeDisplay";
+import { apiGet, apiPost } from "../../api/apiClient";
+import { PROFILE, FORUMS, LIKES } from "../../api/endpoints";
 
 const ShowProfile = () => {
     const { jwtToken } = useOutletContext();
@@ -21,17 +23,7 @@ const ShowProfile = () => {
     const likedForumIds = new Set((likes || []).map(like => like.forum_id));
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/profile/${username}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(PROFILE.GET_BY_USERNAME(username))
             .then((data) => {
                 setProfile({
                     id: data.id || "",
@@ -54,8 +46,7 @@ const ShowProfile = () => {
                 console.log(err);
             });
 
-        fetch(`http://localhost:8080/forums/user/${username}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(FORUMS.GET_BY_USER(username))
             .then((data) => {
                 setForums(data);
             })
@@ -63,8 +54,7 @@ const ShowProfile = () => {
                 console.log(err);
             });
 
-        fetch(`http://localhost:8080/likes`, requestOptions)
-            .then((response) => response.json())
+        apiGet(LIKES.LIST)
             .then((data) => {
                 setLikes(data);
                 setNewLike(false);
@@ -78,44 +68,21 @@ const ShowProfile = () => {
     const handleLike = (id) => (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
+        const endpoint = likedForumIds.has(id) 
+            ? FORUMS.UNLIKE(id) 
+            : FORUMS.LIKE(id);
 
-        const requestOptions = {
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        if (likedForumIds.has(id)) {
-            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        setNewLike(true);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        } else {
-            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        setNewLike(true);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        }
-
+        apiPost(endpoint, {})
+            .then((data) => {
+                if (data.error) {
+                    console.log(data.error);
+                } else {
+                    setNewLike(true);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     const handleChange = (type) => (event) => {
@@ -146,36 +113,22 @@ const ShowProfile = () => {
         }
     }
 
-    const handleCommentSubmit = (event) => {
+    const handleCommentSubmit = async (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestBody = comment;
-
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
+        try {
+            const data = await apiPost(FORUMS.REPLY(comment.forum_id), comment);
+            
+            if (data.error) {
+                console.log(data.error);
+            } else {
+                setNewComment(true);
+                setAddComment(false);
+                setComment({});
+            }
+        } catch (err) {
+            console.log(err);
         }
-
-        fetch(`http://localhost:8080/forums/${comment.forum_id}/reply`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    setNewComment(true);
-                    setAddComment(false);
-                    setComment({});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
     }
 
     return (

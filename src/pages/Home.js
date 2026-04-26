@@ -4,6 +4,8 @@ import { PiNewspaperClippingFill, PiStudentBold } from "react-icons/pi";
 import { Link, useOutletContext } from "react-router-dom";
 import DateTimeDisplay from "../components/DateTimeDisplay";
 import { FaUserPlus, FaUserXmark, FaUsers } from "react-icons/fa6";
+import { apiGet, apiPost } from "../api/apiClient";
+import { FORUMS, LIKES, ARTICLES } from "../api/endpoints";
 
 const Home = () => {
     const { isAdmin } = useOutletContext();
@@ -18,18 +20,8 @@ const Home = () => {
     const likedForumIds = new Set((likes || []).map(like => like.forum_id));
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
         if (isAdmin) {
-            fetch(`http://localhost:8080/dashboard`, requestOptions)
-            .then((response) => response.json())
+            apiGet('/dashboard')
             .then((data) => {
                 setDashboard(data);
             })
@@ -38,8 +30,7 @@ const Home = () => {
             })
         }
 
-        fetch(`http://localhost:8080/forums`, requestOptions)
-            .then((response) => response.json())
+        apiGet(FORUMS.LIST)
             .then((data) => {
                 setForums(data);
             })
@@ -47,8 +38,7 @@ const Home = () => {
                 console.log(err);
             })
 
-        fetch(`http://localhost:8080/likes`, requestOptions)
-            .then((response) => response.json())
+        apiGet(LIKES.LIST)
             .then((data) => {
                 setLikes(data);
                 setNewLike(false);
@@ -57,8 +47,7 @@ const Home = () => {
                 console.log(err);
             })
 
-        fetch(`http://localhost:8080/articles`, requestOptions)
-            .then((response) => response.json())
+        apiGet(ARTICLES.LIST)
             .then((data) => {
                 setArticles(data)
             })
@@ -71,44 +60,21 @@ const Home = () => {
     const handleLike = (id) => (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
+        const endpoint = likedForumIds.has(id) 
+            ? FORUMS.UNLIKE(id) 
+            : FORUMS.LIKE(id);
 
-        const requestOptions = {
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        if (likedForumIds.has(id)) {
-            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        setNewLike(true);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        } else {
-            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        setNewLike(true);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        }
-
+        apiPost(endpoint, {})
+            .then((data) => {
+                if (data.error) {
+                    console.log(data.error);
+                } else {
+                    setNewLike(true);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     const formatIndonesianDate = (isoDateString) => {
