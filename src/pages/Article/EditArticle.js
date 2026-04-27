@@ -5,7 +5,7 @@ import slugify from 'slugify';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-custom-build/build/ckeditor';
 import classNames from 'classnames';
-import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from '../../api/apiClient';
+import { apiGet, apiPut, apiDelete, apiUpload } from '../../api/apiClient';
 import { ARTICLES, PROFILE } from '../../api/endpoints';
 
 const EditArticle = () => {
@@ -93,36 +93,36 @@ const EditArticle = () => {
 
     const imageUploadAdapter = (loader) => {
         return {
-            upload : () => {
+            upload: () => {
                 return new Promise((resolve, reject) => {
                     const body = new FormData();
                     loader.file.then((file) => {
                         body.append("image", file);
 
                         apiUpload(PROFILE.UPLOAD_IMAGE, body)
-                        .then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                            } else {
-                                resolve({ default: `http://localhost:8080/${data.file_path}` });
-                            }
-                        })
-                        .catch(err => {
-                            reject(err);
-                        })
+                            .then((data) => {
+                                if (data.error) {
+                                    console.log(data.error);
+                                } else {
+                                    resolve({ default: `${process.env.REACT_APP_API_URL}/${data.file_path}` });
+                                }
+                            })
+                            .catch(err => {
+                                reject(err);
+                            })
                     })
                 });
             }
         }
     }
 
-    function imageUploadPlugin( editor ) {
-        editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
+    function imageUploadPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
             // Configure the URL to the upload script in your back-end here!
-            return imageUploadAdapter( loader );
+            return imageUploadAdapter(loader);
         };
     }
-    
+
     const handleStatusChange = () => {
         if (isSwitched && article.status === "published") {
             setArticle({
@@ -192,21 +192,21 @@ const EditArticle = () => {
                             config={{
                                 extraPlugins: [imageUploadPlugin]
                             }}
-                            editor={ ClassicEditor }
+                            editor={ClassicEditor}
                             data={article.body}
                             onReady={(editor) => {
                                 editor.editing.view.change((writer) => {
-                                writer.setStyle(
-                                    "min-height",
-                                    "200px",
-                                    editor.editing.view.document.getRoot()
-                                );
+                                    writer.setStyle(
+                                        "min-height",
+                                        "200px",
+                                        editor.editing.view.document.getRoot()
+                                    );
                                 });
                             }}
-                            onChange={ ( event, editor ) => {
+                            onChange={(event, editor) => {
                                 const data = editor.getData();
-                                handleChange("body")({target: {value: data}});
-                            } }
+                                handleChange("body")({ target: { value: data } });
+                            }}
                         />
                     </div>
                 </div>

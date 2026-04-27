@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation, useOutletContext, useParams } from "react-ro
 import Input from "../../components/Input";
 import AddQuestion from "../../components/AddQuestion";
 import { FaDownload } from "react-icons/fa6";
+import { apiGet, apiPost, apiRequest } from "../../api/apiClient";
 
 const SurveyLayout = () => {
     const { jwtToken } = useOutletContext();
@@ -52,17 +53,7 @@ const SurveyLayout = () => {
 
     // Mengambil data survei
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/forms/${id}/show`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/forms/${id}/show`)
             .then((data) => {
                 setSurvey(data);
                 setSurveyEditMode(false);
@@ -79,21 +70,9 @@ const SurveyLayout = () => {
     // Menambahkan question baru
     useEffect(() => {
         if (Object.keys(newQuestion).length !== 0) {
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            headers.append("Authorization", "Bearer " + jwtToken);
-
             const requestBody = newQuestion;
 
-            const requestOptions = {
-                body: JSON.stringify(requestBody),
-                method: "POST",
-                headers: headers,
-                credentials: "include",
-            }
-
-            fetch(`http://localhost:8080/questions/create`, requestOptions)
-            .then((response) => response.json())
+            apiPost('/questions/create', requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -164,21 +143,9 @@ const SurveyLayout = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = survey;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "PATCH",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/forms/${id}`, requestOptions)
-            .then((response) => response.json())
+        apiRequest(`/forms/${id}`, { method: 'PATCH', body: JSON.stringify(requestBody) })
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -200,16 +167,7 @@ const SurveyLayout = () => {
     };
 
     const handleExportSurvey = () => {
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/forms/${id}/answers/export`, requestOptions)
+        apiGet(`/forms/${id}/answers/export`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

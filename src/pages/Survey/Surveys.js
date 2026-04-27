@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useOutletContext } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
 import { IoAdd, IoCheckbox, IoDocumentText } from "react-icons/io5";
+import { apiGet } from "../../api/apiClient";
 
 const Surveys = () => {
     const { jwtToken } = useOutletContext();
@@ -12,18 +13,7 @@ const Surveys = () => {
 
     useEffect( () => {
         if (jwtToken !== "") {
-            
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            headers.append("Authorization", "Bearer " + jwtToken);
-
-            const requestOptions = {
-                method: "GET",
-                headers: headers,
-            }
-
-            fetch(`http://localhost:8080/forms`, requestOptions)
-                .then((response) => response.json())
+            apiGet('/forms')
                 .then((data) => {
                     setSurveys(data);
                 })
@@ -32,17 +22,7 @@ const Surveys = () => {
                 })
 
             if (!isAdmin) {
-                const headers = new Headers();
-                headers.append("Content-Type", "application/json");
-                headers.append("Authorization", "Bearer " + jwtToken);
-
-                const requestOptions = {
-                    method: "GET",
-                    headers: headers,
-                }
-
-                fetch(`http://localhost:8080/answers`, requestOptions)
-                    .then((response) => response.json())
+                apiGet('/answers')
                     .then((data) => {
                         setAnswers(data);
                     })

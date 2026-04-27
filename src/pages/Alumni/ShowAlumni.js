@@ -1,6 +1,7 @@
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FaPenToSquare, FaTrash } from "react-icons/fa6";
+import { apiGet, apiDelete } from "../../api/apiClient";
 
 const ShowAlummi = () => {
     const { jwtToken } = useOutletContext();
@@ -11,16 +12,7 @@ const ShowAlummi = () => {
     const [student, setStudent] = useState({});
 
     const handleDelete = () => {
-        let headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken)
-
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/alumni/${id}`, requestOptions)
-            .then((response) => response.json())
+        apiDelete(`/alumni/${id}`)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -33,17 +25,7 @@ const ShowAlummi = () => {
 
     // Get data alumni saat pertama kali load
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/alumni/${id}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/alumni/${id}`)
             .then((data) => {
                 setStudent(data);
             })

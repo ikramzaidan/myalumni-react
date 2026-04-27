@@ -2,6 +2,7 @@ import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../../components/Input";
 import { useEffect, useState } from "react";
 import SelectInput from "../../components/SelectInput";
+import { apiGet, apiRequest } from "../../api/apiClient";
 
 const EditAlumni = () => {
     const { jwtToken } = useOutletContext();
@@ -56,21 +57,9 @@ const EditAlumni = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = student;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "PATCH",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/alumni/${student.id}`, requestOptions)
-            .then((response) => response.json())
+        apiRequest(`/alumni/${student.id}`, { method: 'PATCH', body: JSON.stringify(requestBody) })
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -84,17 +73,7 @@ const EditAlumni = () => {
     }
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/alumni/${id}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/alumni/${id}`)
             .then((data) => {
                 setStudent(data);
             })

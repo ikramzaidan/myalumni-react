@@ -3,6 +3,7 @@ import TextArea from "./TextArea";
 import SelectInput from "./SelectInput";
 import { useOutletContext } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
+import { apiPost } from "../api/apiClient";
 
 const AddQuestion = (props) => {
     const { jwtToken } = useOutletContext();
@@ -55,21 +56,9 @@ const AddQuestion = (props) => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = question;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/questions/create`, requestOptions)
-            .then((response) => response.json())
+        apiPost('/questions/create', requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);

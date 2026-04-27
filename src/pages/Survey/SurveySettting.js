@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import Input from "../../components/Input";
 import TextArea from "../../components/TextArea";
+import { apiRequest } from "../../api/apiClient";
 
 const SurveySetting = () => {
     let { id } = useParams();
@@ -102,21 +103,9 @@ const SurveySetting = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = survey;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "PATCH",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/forms/${id}`, requestOptions)
-            .then((response) => response.json())
+        apiRequest(`/forms/${id}`, { method: 'PATCH', body: JSON.stringify(requestBody) })
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);

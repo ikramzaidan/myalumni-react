@@ -1,4 +1,4 @@
-import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Input from '../../components/Input';
 import { useState } from 'react';
 import slugify from 'slugify';
@@ -9,10 +9,8 @@ import { apiPost, apiUpload } from '../../api/apiClient';
 import { ARTICLES, PROFILE } from '../../api/endpoints';
 
 const AddArticle = () => {
-    const { jwtToken } = useOutletContext();
     const [errors, setErrors] = useState([]);
     const [isSwitched, setIsSwithed] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const [article, setArticle] = useState({
@@ -65,11 +63,9 @@ const AddArticle = () => {
             return false;
         }
 
-        setIsLoading(true);
-        
         try {
             const data = await apiPost(ARTICLES.CREATE, article);
-            
+
             if (data.error) {
                 console.log(data.error);
             } else {
@@ -77,43 +73,41 @@ const AddArticle = () => {
             }
         } catch (err) {
             console.log(err);
-        } finally {
-            setIsLoading(false);
         }
     }
 
     const imageUploadAdapter = (loader) => {
         return {
-            upload : () => {
+            upload: () => {
                 return new Promise((resolve, reject) => {
                     const body = new FormData();
                     loader.file.then((file) => {
                         body.append("image", file);
 
                         apiUpload(PROFILE.UPLOAD_IMAGE, body)
-                        .then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                            } else {
-                                resolve({ default: `http://localhost:8080/${data.file_path}` });
-                            }
-                        })
-                        .catch(err => {
-                            reject(err);
-                        })
+                            .then((data) => {
+                                if (data.error) {
+                                    console.log(data.error);
+                                } else {
+                                    resolve({ default: `${process.env.REACT_APP_API_URL}/${data.file_path}` });
+                                }
+                            })
+                            .catch(err => {
+                                reject(err);
+                            })
                     })
                 });
             }
         }
     }
 
-    function imageUploadPlugin( editor ) {
-        editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
+    function imageUploadPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
             // Configure the URL to the upload script in your back-end here!
-            return imageUploadAdapter( loader );
+            return imageUploadAdapter(loader);
         };
     }
-    
+
     const handleStatusChange = () => {
         if (isSwitched && article.status === "published") {
             setArticle({
@@ -168,21 +162,21 @@ const AddArticle = () => {
                             config={{
                                 extraPlugins: [imageUploadPlugin]
                             }}
-                            editor={ ClassicEditor }
+                            editor={ClassicEditor}
                             data="<p>Tulis sesuatu!</p>"
                             onReady={(editor) => {
                                 editor.editing.view.change((writer) => {
-                                writer.setStyle(
-                                    "min-height",
-                                    "200px",
-                                    editor.editing.view.document.getRoot()
-                                );
+                                    writer.setStyle(
+                                        "min-height",
+                                        "200px",
+                                        editor.editing.view.document.getRoot()
+                                    );
                                 });
                             }}
-                            onChange={ ( event, editor ) => {
+                            onChange={(event, editor) => {
                                 const data = editor.getData();
-                                handleChange("body")({target: {value: data}});
-                            } }
+                                handleChange("body")({ target: { value: data } });
+                            }}
                         />
                     </div>
                 </div>

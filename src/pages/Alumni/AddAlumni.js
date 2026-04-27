@@ -3,9 +3,9 @@ import Input from "../../components/Input";
 import { useEffect, useState } from "react";
 import SelectInput from "../../components/SelectInput";
 import { TbTableImport } from "react-icons/tb";
+import { apiPost } from "../../api/apiClient";
 
 const AddAlummi = () => {
-    const { jwtToken } = useOutletContext();
     const { isAdmin } = useOutletContext();
     const [errors, setErrors] = useState([]);
 
@@ -17,11 +17,14 @@ const AddAlummi = () => {
         }
     });
 
-    const hasError = (key) => {
-        return errors.indexOf(key) !== -1;
-    }
-
-    const [student, setStudent] = useState({});
+    const [student, setStudent] = useState({
+        name: "",
+        nisn: "",
+        nis: "",
+        phone: "",
+        graduation_year: "",
+        gender: ""
+    });
 
     const handleChange = () => (event) => {
         const { name, value } = event.target;
@@ -39,17 +42,21 @@ const AddAlummi = () => {
         }
     }
 
-    const handleSubmit = (event) => {
+    const hasError = (key) => {
+        return errors.indexOf(key) !== -1;
+    }
+
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         let errors = [];
         let required = [
-            { field: student.name, name: "name"},
-            { field: student.gender, name: "gender"},
-            { field: student.phone, name: "phone"},
-            { field: student.nis, name: "nis"},
-            { field: student.nisn, name: "nisn"},
-            { field: student.graduation_year, name: "graduation_yearyear"},
+            { field: student.name, name: "name" },
+            { field: student.gender, name: "gender" },
+            { field: student.phone, name: "phone" },
+            { field: student.nis, name: "nis" },
+            { field: student.nisn, name: "nisn" },
+            { field: student.graduation_year, name: "graduation_yearyear" },
         ]
 
         required.forEach(function (obj) {
@@ -64,21 +71,9 @@ const AddAlummi = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = student;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/alumni/create`, requestOptions)
-            .then((response) => response.json())
+        apiPost(`/alumni/create`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -106,8 +101,8 @@ const AddAlummi = () => {
                         name="name"
                         placeHolder="Nama"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        onChange={handleChange("title")}
-                        errorMsg={hasError("title") ? "Please enter a title" : ""}
+                        onChange={handleChange("name")}
+                        errorMsg={hasError("name") ? "Please enter a name" : ""}
                     />
                     <div className="grid grid-cols-2 gap-3">
                         <Input
@@ -117,7 +112,7 @@ const AddAlummi = () => {
                             placeHolder="NISN"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             onChange={handleChange("nisn")}
-                            errorMsg={hasError("nisn") ? "Please enter a nisn" : ""}
+                            errorMsg={hasError("nisn") ? "Please enter a NISN" : ""}
                         />
                         <Input
                             title="NIS"
@@ -126,17 +121,17 @@ const AddAlummi = () => {
                             placeHolder="NIS"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             onChange={handleChange("nis")}
-                            errorMsg={hasError("nis") ? "Please enter a nis" : ""}
+                            errorMsg={hasError("nis") ? "Please enter a NIS" : ""}
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                        <SelectInput 
+                        <SelectInput
                             title="Jenis Kelamin"
                             name={"gender"}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md appearance-none"
                             options={[
-                                {label: "Laki-laki", value: "M"},
-                                {label: "Perempuan", value: "F"},
+                                { label: "Laki-laki", value: "M" },
+                                { label: "Perempuan", value: "F" },
                             ]}
                             onChange={handleChange("gender")}
                             placeHolder={"Jenis Kelamin"}

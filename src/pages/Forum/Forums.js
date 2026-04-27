@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { IoChatbubbleOutline, IoHeart, IoHeartOutline, IoSend } from "react-icons/io5";
+import { HiDotsHorizontal } from "react-icons/hi";
 import { PiNewspaperClippingFill } from "react-icons/pi";
 import { Link, useOutletContext } from "react-router-dom";
 import DateTimeDisplay from "../../components/DateTimeDisplay";
 import { ImSearch } from "react-icons/im";
+import { apiGet, apiPost } from "../../api/apiClient";
 
 const Forums = () => {
     const { jwtToken } = useOutletContext();
@@ -19,21 +21,12 @@ const Forums = () => {
     const [filteredForums, setFilteredForums] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [forumPending, setForumPending] = useState(false);
+    const { setOpenModalForum, setDeleteForumId } = useOutletContext();
 
     const likedForumIds = new Set((likes || []).map(like => like.forum_id));
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/forums`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/forums`)
             .then((data) => {
                 setForums(data);
                 setFilteredForums(data);
@@ -44,8 +37,7 @@ const Forums = () => {
                 console.log(err);
             })
 
-        fetch(`http://localhost:8080/likes`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/likes`)
             .then((data) => {
                 setLikes(data);
                 setNewLike(false);
@@ -66,12 +58,12 @@ const Forums = () => {
         const filtered = forums.filter(forum => {
             const userName = forum.user_name ? forum.user_name.toLowerCase() : ''; // Pastikan ada nilai sebelum melakukan toLowerCase()
             const forumText = forum.forum_text ? forum.forum_text.toLowerCase() : ''; // Pastikan ada nilai sebelum melakukan toLowerCase()
-    
+
             return userName.includes(term.toLowerCase()) || forumText.includes(term.toLowerCase());
         });
         setFilteredForums(filtered);
     };
-    
+
     const handleChange = (type) => (event) => {
         const { name, value } = event.target;
 
@@ -95,21 +87,9 @@ const Forums = () => {
 
         setForumPending(true);
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = forum;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/forums/create`, requestOptions)
-            .then((response) => response.json())
+        apiPost(`/forums/create`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -129,22 +109,10 @@ const Forums = () => {
     const handleLike = (id) => (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = forum;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
         if (likedForumIds.has(id)) {
-            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
-                .then((response) => response.json())
+            apiPost(`/forums/${id}/unlike`, requestBody)
                 .then((data) => {
                     if (data.error) {
                         console.log(data.error);
@@ -156,8 +124,7 @@ const Forums = () => {
                     console.log(err);
                 })
         } else {
-            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
-                .then((response) => response.json())
+            apiPost(`/forums/${id}/like`, requestBody)
                 .then((data) => {
                     if (data.error) {
                         console.log(data.error);
@@ -169,7 +136,6 @@ const Forums = () => {
                     console.log(err);
                 })
         }
-
     }
 
     const handleAddComment = (id) => {
@@ -194,21 +160,9 @@ const Forums = () => {
     const handleCommentSubmit = (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = comment;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/forums/${comment.forum_id}/reply`, requestOptions)
-            .then((response) => response.json())
+        apiPost(`/forums/${comment.forum_id}/reply`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -223,7 +177,7 @@ const Forums = () => {
             })
     }
 
-    return(
+    return (
         <>
             <div className="flex flex-col xl:grid xl:grid-cols-3 gap-4 mb-8">
                 <div className="xl:col-span-2 flex flex-col gap-4">
@@ -233,7 +187,7 @@ const Forums = () => {
                     {/* <pre>{likedForumIds}</pre> */}
                     <div className="flex flex-col border shadow rounded-xl bg-white p-4 font-medium">
                         <form onSubmit={handlePostSubmit}>
-                            <textarea 
+                            <textarea
                                 name="forum_text"
                                 className="w-full border-0 border-b border-b-transparent resize-none overflow-hidden p-0 mb-3 focus:ring-0 focus:border-b-gray-300"
                                 placeholder="Bagikan sesuatu!"
@@ -259,93 +213,98 @@ const Forums = () => {
                         </div>
                     ) : (
                         <>
-                        {filteredForums.map((q) => (
-                            <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
-                                <div className="flex gap-2 items-center">
-                                    {q.user_photo ? (
-                                        <img src={'http://localhost:8080/' + q.user_photo} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
-                                    ) : (
-                                        <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                                        </svg>
-                                    )}
-                                    <div className="flex flex-col">
-                                        {q.user_name ? (
-                                            <Link to={`/profile/${q.user_username}`} className="font-semibold">{q.user_name} <span className="text-sm font-light">@{q.user_username}</span></Link>
-                                        ) : (
-                                            <Link to={`/profile/${q.user_username}`} className="font-semibold">{q.user_username}</Link>
-                                        )}
-                                        <div className="text-gray-500 text-xs font-normal"><DateTimeDisplay dateTimeStr={q.published_at} /></div>
-                                    </div>
-                                </div>
-                                <p>{q.forum_text}</p>
-                                <div className="w-full border mt-3"></div>
-                                <div className="flex gap-5 items-center">
-                                    <button type="button" className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500" onClick={handleLike(q.id)}>
-                                        {likedForumIds.has(q.id) ? (
-                                            <IoHeart size={21} className="text-red-500" />
-                                        ) : (
-                                            <IoHeartOutline size={21} className="stroke-w-3" />
-                                        )}
-                                        {!q.likes_number ? (
-                                            <span className="text-base">Suka</span>
-                                        ) : (
-                                            <span className="text-base">{q.likes_number}</span>
-                                        )}
-                                    </button>
-                                    <div onClick={() => handleAddComment(q.id)} className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500 cursor-pointer">
-                                        <IoChatbubbleOutline className="stroke-w-3 " />
-                                        {!q.comments_number ? (
-                                            <span className="text-base">Komentar</span>
-                                        ) : (
-                                            <span className="text-base">{q.comments_number}</span>
-                                        )}
-                                    </div>
-                                </div>
-                                { q.comments_number ? (
-                                    <>
-                                    <div className="w-full border"></div>
-                                    { q.comments && q.comments.map((c) => (
-                                        <div className="flex gap-2 items-start" key={c.id}>
-                                            {c.user_photo ? (
-                                                <img src={c.user_photo} className="object-cover w-8 h-8 rounded-full" alt="Profile" />
+                            {filteredForums.map((q) => (
+                                <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex gap-2 items-center">
+                                            {q.user_photo ? (
+                                                <img src={`${process.env.REACT_APP_API_URL}/${q.user_photo}`} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
                                             ) : (
-                                                <svg className="w-8 h-8 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                 </svg>
                                             )}
                                             <div className="flex flex-col">
-                                                {c.user_name ? (
-                                                    <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_name} <span className="text-sm font-light">@{c.user_username}</span></Link>
+                                                {q.user_name ? (
+                                                    <Link to={`/profile/${q.user_username}`} className="font-semibold">{q.user_name} <span className="text-sm font-light">@{q.user_username}</span></Link>
                                                 ) : (
-                                                    <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_username}</Link>
+                                                    <Link to={`/profile/${q.user_username}`} className="font-semibold">{q.user_username}</Link>
                                                 )}
-                                                <p className="text-sm mt-1">{c.reply_text}</p>
+                                                <div className="text-gray-500 text-xs font-normal"><DateTimeDisplay dateTimeStr={q.published_at} /></div>
                                             </div>
                                         </div>
-                                    ))}
-                                    </>
-                                ) : ("") }
-                                { addComment && addCommentId === q.id ? (
-                                    <>
-                                        <div className="w-full border"></div>
-                                        <form onSubmit={handleCommentSubmit}>
-                                            <div className="flex justify-between items-stretch">
-                                                <input
-                                                    id="reply"
-                                                    name="reply_text"
-                                                    className="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-gray-300"
-                                                    placeholder="Beri Komentar"
-                                                    onChange={handleChange("comment")}
-                                                    value={comment.reply_text || ""}
-                                                ></input>
-                                                <button type="submit" className="px-3 border-0 border-b border-gray-300 text-gray-500" title="Kirim komentar"><IoSend className="hover:text-red-500" /></button>
-                                            </div>
-                                        </form>
-                                    </>
-                                ) : ("") }
-                            </div>
-                        ))}
+                                        <button className="bg-white hover:bg-gray-50 p-1 rounded-md text-xl text-black">
+                                            <HiDotsHorizontal size={21} className="text-gray-500" onClick={() => { setDeleteForumId(q.id); setOpenModalForum(true); }} />
+                                        </button>
+                                    </div>
+                                    <p>{q.forum_text}</p>
+                                    <div className="w-full border mt-3"></div>
+                                    <div className="flex gap-5 items-center">
+                                        <button type="button" className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500" onClick={handleLike(q.id)}>
+                                            {likedForumIds.has(q.id) ? (
+                                                <IoHeart size={21} className="text-red-500" />
+                                            ) : (
+                                                <IoHeartOutline size={21} className="stroke-w-3" />
+                                            )}
+                                            {!q.likes_number ? (
+                                                <span className="text-base">Suka</span>
+                                            ) : (
+                                                <span className="text-base">{q.likes_number}</span>
+                                            )}
+                                        </button>
+                                        <div onClick={() => handleAddComment(q.id)} className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500 cursor-pointer">
+                                            <IoChatbubbleOutline className="stroke-w-3 " />
+                                            {!q.comments_number ? (
+                                                <span className="text-base">Komentar</span>
+                                            ) : (
+                                                <span className="text-base">{q.comments_number}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    {q.comments_number ? (
+                                        <>
+                                            <div className="w-full border"></div>
+                                            {q.comments && q.comments.map((c) => (
+                                                <div className="flex gap-2 items-start" key={c.id}>
+                                                    {c.user_photo ? (
+                                                        <img src={c.user_photo} className="object-cover w-8 h-8 rounded-full" alt="Profile" />
+                                                    ) : (
+                                                        <svg className="w-8 h-8 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                        </svg>
+                                                    )}
+                                                    <div className="flex flex-col">
+                                                        {c.user_name ? (
+                                                            <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_name} <span className="text-sm font-light">@{c.user_username}</span></Link>
+                                                        ) : (
+                                                            <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_username}</Link>
+                                                        )}
+                                                        <p className="text-sm mt-1">{c.reply_text}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>
+                                    ) : ("")}
+                                    {addComment && addCommentId === q.id ? (
+                                        <>
+                                            <div className="w-full border"></div>
+                                            <form onSubmit={handleCommentSubmit}>
+                                                <div className="flex justify-between items-stretch">
+                                                    <input
+                                                        id="reply"
+                                                        name="reply_text"
+                                                        className="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-gray-300"
+                                                        placeholder="Beri Komentar"
+                                                        onChange={handleChange("comment")}
+                                                        value={comment.reply_text || ""}
+                                                    ></input>
+                                                    <button type="submit" className="px-3 border-0 border-b border-gray-300 text-gray-500" title="Kirim komentar"><IoSend className="hover:text-red-500" /></button>
+                                                </div>
+                                            </form>
+                                        </>
+                                    ) : ("")}
+                                </div>
+                            ))}
                         </>
                     )}
                 </div>

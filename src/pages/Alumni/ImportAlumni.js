@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FaUpload } from "react-icons/fa6";
 import { IoCaretDown, IoCaretUp } from "react-icons/io5";
 import { MdCancel } from "react-icons/md";
+import { apiPost } from "../../api/apiClient";
 
 const ImportAlummi = () => {
     const { jwtToken } = useOutletContext();
@@ -42,19 +43,7 @@ const ImportAlummi = () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch(`http://localhost:8080/alumni/import`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${jwtToken}`
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to import alumni data.');
-            }
-
-            const data = await response.json();
+            const data = await apiPost('/alumni/import', formData);
             setStudents(data); // Assuming the response data contains the list of students under 'Data'
         } catch (error) {
             setErrors([error.message]);
@@ -64,21 +53,9 @@ const ImportAlummi = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = students;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/alumni/import/save`, requestOptions)
-            .then((response) => response.json())
+        apiPost(`/alumni/import/save`, requestBody)
             .then((data) => {
                 if (data.error) {
                     setErrors(data.error);

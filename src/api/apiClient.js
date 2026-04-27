@@ -45,7 +45,7 @@ const buildRequestOptions = (options = {}) => {
     const headers = new Headers();
     
     // Set default Content-Type if not FormData
-    if (!options.body instanceof FormData) {
+    if (!(options.body instanceof FormData)) {
         headers.append('Content-Type', 'application/json');
     }
     
@@ -117,11 +117,15 @@ export const apiRequest = async (endpoint, options = {}) => {
 export const apiGet = (endpoint, options = {}) => 
     apiRequest(endpoint, { ...options, method: 'GET' });
 
-export const apiPost = (endpoint, body, options = {}) => 
-    apiRequest(endpoint, { ...options, method: 'POST', body: JSON.stringify(body) });
+export const apiPost = (endpoint, body, options = {}) => {
+    const isFormData = body instanceof FormData;
+    return apiRequest(endpoint, { ...options, method: 'POST', body: isFormData ? body : JSON.stringify(body) });
+};
 
-export const apiPut = (endpoint, body, options = {}) => 
-    apiRequest(endpoint, { ...options, method: 'PUT', body: JSON.stringify(body) });
+export const apiPut = (endpoint, body, options = {}) => {
+    const isFormData = body instanceof FormData;
+    return apiRequest(endpoint, { ...options, method: 'PUT', body: isFormData ? body : JSON.stringify(body) });
+};
 
 export const apiDelete = (endpoint, options = {}) => 
     apiRequest(endpoint, { ...options, method: 'DELETE' });

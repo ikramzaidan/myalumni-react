@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
+import { apiGet } from "../../api/apiClient";
 
 const Article = () => {
     const { jwtToken } = useOutletContext();
@@ -8,17 +9,7 @@ const Article = () => {
 
     // Get data artikel pertama kali load
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/articles/${slug}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/articles/${slug}`)
             .then((data) => {
                 setArticle(data);
             })

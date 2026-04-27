@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FaTrash, FaCopy, FaEllipsisVertical } from "react-icons/fa6";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { apiRequest, apiDelete } from "../../api/apiClient";
 
 const Survey = () => {
     const { jwtToken } = useOutletContext();
@@ -137,21 +138,9 @@ const Survey = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = question;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "PATCH",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/questions/${idq}`, requestOptions)
-            .then((response) => response.json())
+        apiRequest(`/questions/${idq}`, { method: 'PATCH', body: JSON.stringify(requestBody) })
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -171,21 +160,7 @@ const Survey = () => {
     const handleQuestionDelete = (idq) => (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestBody = question;
-
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "DELETE",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/questions/${idq}`, requestOptions)
-            .then((response) => response.json())
+        apiDelete(`/questions/${idq}`)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
