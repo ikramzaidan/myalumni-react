@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { apiGet } from "../../api/apiClient";
 
 const Article = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [article, setArticle] = useState({});
     let { slug } = useParams();
 

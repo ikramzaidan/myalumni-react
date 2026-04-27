@@ -1,4 +1,5 @@
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { useState } from "react";
 import { FaUpload } from "react-icons/fa6";
 import { IoCaretDown, IoCaretUp } from "react-icons/io5";
@@ -6,7 +7,7 @@ import { MdCancel } from "react-icons/md";
 import { apiPost } from "../../api/apiClient";
 
 const ImportAlummi = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();

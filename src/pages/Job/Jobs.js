@@ -1,4 +1,5 @@
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import { useEffect, useState } from 'react';
 import { PiBriefcaseFill } from "react-icons/pi";
 import { ImSearch } from 'react-icons/im';
@@ -11,7 +12,7 @@ import DateTimeDisplay from '../../components/DateTimeDisplay';
 import { apiGet, apiPost } from '../../api/apiClient';
 
 const Jobs = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [errors, setErrors] = useState([]);
     const [jobs, setJobs] = useState([]);
     const [job, setJob] = useState({});

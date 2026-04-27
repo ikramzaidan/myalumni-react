@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import ProfileBar from "../components/ProfileBar";
-import { Link, Outlet, useLocation, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { IoBriefcase, IoChatbubbles, IoChevronBackOutline, IoDocumentText, IoHome, IoNewspaper, IoPeople, IoClose } from "react-icons/io5";
 import { apiGet, apiDelete } from "../api/apiClient";
 import { PROFILE, SURVEYS, FORUMS } from "../api/endpoints";
+import { useAuth } from "../auth/AuthContext";
 
 const Layout = () => {
     const [openSide, setOpenSide] = useState(false);
@@ -12,10 +13,7 @@ const Layout = () => {
     const [alertMessage, setAlertMessage] = useState("");
     const [deleteForumId, setDeleteForumId] = useState(null);
 
-    const { logOut } = useOutletContext();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
-    const { myUsername } = useOutletContext();
+    const { jwtToken, isAdmin, myUsername, logOut } = useAuth();
 
     const [profile, setProfile] = useState({});
 
@@ -71,9 +69,7 @@ const Layout = () => {
     useEffect(() => {
         setOpenSide(false);
 
-        if (jwtToken === "") {
-            navigate("/login");
-        } else {
+        if (jwtToken) {
             apiGet(PROFILE.GET)
                 .then((data) => {
                     if (data.error) {
@@ -166,7 +162,7 @@ const Layout = () => {
 
                         {/* Main Content */}
                         <div className="py-5 px-6 sm:px-8">
-                            <Outlet context={{ jwtToken, isAdmin, setOpenModal, setOpenModalForum, setDeleteForumId, profile, setAlertMessage }} />
+                            <Outlet context={{ setOpenModal, setOpenModalForum, setDeleteForumId, profile, setAlertMessage }} />
                         </div>
 
                     </div>

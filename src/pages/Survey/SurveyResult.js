@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { apiGet } from "../../api/apiClient";
 
 const SurveyResult = () => {
     let { id } = useParams();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [survey, setSurvey] = useState([]);
     const [focusQuestionId, setFocusQuestionId] = useState(null);
 

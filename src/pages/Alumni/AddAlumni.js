@@ -1,4 +1,5 @@
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import Input from "../../components/Input";
 import { useEffect, useState } from "react";
 import SelectInput from "../../components/SelectInput";
@@ -6,7 +7,7 @@ import { TbTableImport } from "react-icons/tb";
 import { apiPost } from "../../api/apiClient";
 
 const AddAlummi = () => {
-    const { isAdmin } = useOutletContext();
+    const { isAdmin } = useAuth();
     const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();

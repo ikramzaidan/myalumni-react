@@ -1,4 +1,5 @@
-import { Link, useOutletContext, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { useEffect, useState } from "react";
 import { FaFacebookF, FaInstagram, FaTiktok, FaTwitter } from "react-icons/fa6";
 import { IoChatbubbleOutline, IoHeart, IoHeartOutline, IoSend } from "react-icons/io5";
@@ -8,7 +9,7 @@ import { apiGet, apiPost } from "../../api/apiClient";
 import { PROFILE, FORUMS, LIKES } from "../../api/endpoints";
 
 const ShowProfile = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     let { username } = useParams();
 
     const [profile, setProfile] = useState({});

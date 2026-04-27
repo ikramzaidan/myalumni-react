@@ -1,14 +1,15 @@
 import { useOutletContext } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { useEffect, useState } from "react";
 import { TiPencil } from "react-icons/ti";
 import { IoAdd } from "react-icons/io5";
 import { PiGraduationCapFill, PiBriefcaseFill } from "react-icons/pi";
 import { FaTrash } from "react-icons/fa6";
-import { apiGet, apiPost, apiPut, apiDelete, apiUpload } from "../../api/apiClient";
+import { apiGet, apiPost, apiPatch, apiDelete, apiUpload } from "../../api/apiClient";
 import { PROFILE } from "../../api/endpoints";
 
 const Profile = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const { setAlertMessage } = useOutletContext();
     // const navigate = useNavigate();
 
@@ -111,7 +112,7 @@ const Profile = () => {
             const updatedProfile = { ...profile, photo: photoPath };
 
             // Update profile
-            const data = await apiPut(PROFILE.UPDATE, updatedProfile);
+            const data = await apiPatch(PROFILE.UPDATE, updatedProfile);
 
             if (data.error) {
                 console.log(data.error);

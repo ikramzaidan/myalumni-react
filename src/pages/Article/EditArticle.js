@@ -1,4 +1,5 @@
-import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import Input from '../../components/Input';
 import { useEffect, useState } from 'react';
 import slugify from 'slugify';
@@ -9,7 +10,7 @@ import { apiGet, apiPut, apiDelete, apiUpload } from '../../api/apiClient';
 import { ARTICLES, PROFILE } from '../../api/endpoints';
 
 const EditArticle = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [errors, setErrors] = useState([]);
     const [article, setArticle] = useState({});
     const [articleBody, setArticleBody] = useState({});

@@ -1,12 +1,12 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { apiGet, apiPost } from "../../api/apiClient";
 
 const FillSurvey = () => {
     let { id } = useParams();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const { setAlertMessage } = useOutletContext();
     const decodedJwt = jwtDecode(jwtToken);
     const [survey, setSurvey] = useState({});

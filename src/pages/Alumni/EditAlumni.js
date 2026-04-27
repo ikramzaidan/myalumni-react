@@ -1,12 +1,12 @@
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import Input from "../../components/Input";
 import { useEffect, useState } from "react";
 import SelectInput from "../../components/SelectInput";
 import { apiGet, apiRequest } from "../../api/apiClient";
 
 const EditAlumni = () => {
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [student, setStudent] = useState({});
     const [errors, setErrors] = useState([]);
     

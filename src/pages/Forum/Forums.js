@@ -3,12 +3,13 @@ import { IoChatbubbleOutline, IoHeart, IoHeartOutline, IoSend } from "react-icon
 import { HiDotsHorizontal } from "react-icons/hi";
 import { PiNewspaperClippingFill } from "react-icons/pi";
 import { Link, useOutletContext } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import DateTimeDisplay from "../../components/DateTimeDisplay";
 import { ImSearch } from "react-icons/im";
 import { apiGet, apiPost } from "../../api/apiClient";
 
 const Forums = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [forums, setForums] = useState([]);
     const [forum, setForum] = useState({});
     const [likes, setLikes] = useState([]);

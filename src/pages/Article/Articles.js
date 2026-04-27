@@ -1,4 +1,5 @@
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import { useEffect, useState } from 'react';
 import { PiNewspaperClippingFill } from "react-icons/pi";
 import { TbEdit } from "react-icons/tb";
@@ -6,8 +7,7 @@ import { IoAdd } from 'react-icons/io5';
 import { apiGet } from '../../api/apiClient';
 
 const Articles = () => {
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [articles, setArticles] = useState([]);
 
     useEffect(() => {

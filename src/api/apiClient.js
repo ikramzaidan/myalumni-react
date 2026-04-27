@@ -43,17 +43,17 @@ export const clearAuthToken = () => {
  */
 const buildRequestOptions = (options = {}) => {
     const headers = new Headers();
-    
+
     // Set default Content-Type if not FormData
     if (!(options.body instanceof FormData)) {
         headers.append('Content-Type', 'application/json');
     }
-    
+
     // Add authorization header if token exists
     if (authToken) {
         headers.append('Authorization', `Bearer ${authToken}`);
     }
-    
+
     // Merge with provided options
     return {
         credentials: 'include',
@@ -75,15 +75,15 @@ const buildRequestOptions = (options = {}) => {
 export const apiRequest = async (endpoint, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
     const requestOptions = buildRequestOptions(options);
-    
+
     try {
         const response = await fetch(url, requestOptions);
-        
+
         // Handle non-JSON responses
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
             const data = await response.json();
-            
+
             // Handle API errors
             if (!response.ok) {
                 const error = new Error(data.error || 'API request failed');
@@ -91,17 +91,17 @@ export const apiRequest = async (endpoint, options = {}) => {
                 error.data = data;
                 throw error;
             }
-            
+
             return data;
         }
-        
+
         // For non-JSON responses (like file downloads)
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         return response;
-        
+
     } catch (error) {
         // Log error in development
         if (process.env.NODE_ENV !== 'production') {
@@ -114,7 +114,7 @@ export const apiRequest = async (endpoint, options = {}) => {
 /**
  * Convenience methods for common HTTP verbs
  */
-export const apiGet = (endpoint, options = {}) => 
+export const apiGet = (endpoint, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'GET' });
 
 export const apiPost = (endpoint, body, options = {}) => {
@@ -127,7 +127,12 @@ export const apiPut = (endpoint, body, options = {}) => {
     return apiRequest(endpoint, { ...options, method: 'PUT', body: isFormData ? body : JSON.stringify(body) });
 };
 
-export const apiDelete = (endpoint, options = {}) => 
+export const apiPatch = (endpoint, body, options = {}) => {
+    const isFormData = body instanceof FormData;
+    return apiRequest(endpoint, { ...options, method: 'PATCH', body: isFormData ? body : JSON.stringify(body) });
+};
+
+export const apiDelete = (endpoint, options = {}) =>
     apiRequest(endpoint, { ...options, method: 'DELETE' });
 
 /**
@@ -139,12 +144,12 @@ export const apiDelete = (endpoint, options = {}) =>
  */
 export const apiUpload = async (endpoint, formData, options = {}) => {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const headers = new Headers();
     if (authToken) {
         headers.append('Authorization', `Bearer ${authToken}`);
     }
-    
+
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -152,16 +157,16 @@ export const apiUpload = async (endpoint, formData, options = {}) => {
             credentials: 'include',
             headers
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             const error = new Error(data.error || 'Upload failed');
             error.status = response.status;
             error.data = data;
             throw error;
         }
-        
+
         return data;
     } catch (error) {
         if (process.env.NODE_ENV !== 'production') {
@@ -179,6 +184,7 @@ export default {
     get: apiGet,
     post: apiPost,
     put: apiPut,
+    patch: apiPatch,
     delete: apiDelete,
     upload: apiUpload
 };

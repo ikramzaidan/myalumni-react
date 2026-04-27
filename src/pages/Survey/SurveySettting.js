@@ -1,17 +1,17 @@
 import classNames from "classnames";
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import Input from "../../components/Input";
 import TextArea from "../../components/TextArea";
 import { apiRequest } from "../../api/apiClient";
 
 const SurveySetting = () => {
     let { id } = useParams();
-    const { jwtToken } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const { survey } = useOutletContext();
     const { setSurvey } = useOutletContext();
     const { setSurveyUpdated } = useOutletContext();
-    const { isAdmin } = useOutletContext();
 
     const [isSwitched, setIsSwithed] = useState(false);
     const [isSwitched2, setIsSwithed2] = useState(false);

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { IoIosArrowForward } from "react-icons/io";
 import { IoAdd, IoCheckbox, IoDocumentText } from "react-icons/io5";
 import { apiGet } from "../../api/apiClient";
 
 const Surveys = () => {
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [surveys, setSurveys] = useState([]);
     const [answers, setAnswers] = useState([]);
     const filledSurveyIds = new Set((answers || []).map(answer => answer.form_id));

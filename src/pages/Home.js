@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { IoChatbubbleOutline, IoHeart, IoHeartOutline } from "react-icons/io5";
 import { PiNewspaperClippingFill, PiStudentBold } from "react-icons/pi";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import DateTimeDisplay from "../components/DateTimeDisplay";
 import { FaUserPlus, FaUserXmark, FaUsers } from "react-icons/fa6";
 import { apiGet, apiPost } from "../api/apiClient";
 import { FORUMS, LIKES, ARTICLES } from "../api/endpoints";
 
 const Home = () => {
-    const { isAdmin } = useOutletContext();
-    const { jwtToken } = useOutletContext();
+    const { isAdmin, jwtToken } = useAuth();
     const [dashboard, setDashboard] = useState({});
     const [articles, setArticles] = useState([]);
     const [forums, setForums] = useState([]);
@@ -105,7 +105,7 @@ const Home = () => {
                                         <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
                                             <div className="flex gap-2 items-center">
                                                 {q.user_photo ? (
-                                                    <img src={`${process.env.REACT_APP_API_URL}/${q.userPhoto}`} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
+                                                    <img src={`${process.env.REACT_APP_API_URL}/${q.user_photo}`} className="object-cover w-10 h-10 rounded-full" alt="Profile" />
                                                 ) : (
                                                     <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />

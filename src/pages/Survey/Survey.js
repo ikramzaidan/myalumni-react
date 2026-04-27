@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { FaTrash, FaCopy, FaEllipsisVertical } from "react-icons/fa6";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { apiRequest, apiDelete } from "../../api/apiClient";
 
 const Survey = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const { survey } = useOutletContext();
-    const { isAdmin } = useOutletContext();
     const { setQuestionUpdated } = useOutletContext();
     const { setNewQuestion } = useOutletContext();
     const { setAlertMessage } = useOutletContext();

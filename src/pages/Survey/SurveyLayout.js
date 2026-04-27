@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { IoAdd, IoEllipsisHorizontal } from "react-icons/io5";
 import { Link, Outlet, useLocation, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import Input from "../../components/Input";
 import AddQuestion from "../../components/AddQuestion";
 import { FaDownload } from "react-icons/fa6";
 import { apiGet, apiPost, apiRequest } from "../../api/apiClient";
 
 const SurveyLayout = () => {
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const { setAlertMessage } = useOutletContext();
     const { setOpenModal } = useOutletContext();
 
@@ -258,7 +258,7 @@ const SurveyLayout = () => {
                     </div>
                 ) : ("")}
                 <AddQuestion className={questionCreateMode ? "" : "hidden"} value={id} onSuccess={handleQuestionCreate} />
-                <Outlet context={{ jwtToken, isAdmin, survey, setSurvey, setNewQuestion, setSurveyUpdated, setQuestionUpdated, setQuestionCreateMode, setAlertMessage }} />
+                <Outlet context={{ survey, setSurvey, setNewQuestion, setSurveyUpdated, setQuestionUpdated, setQuestionCreateMode, setAlertMessage }} />
             </div>
         </>
     );

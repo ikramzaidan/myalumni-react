@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { FaEye } from "react-icons/fa6";
 import { IoAdd } from "react-icons/io5";
 import { PiStudentBold } from "react-icons/pi";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { apiGet } from "../../api/apiClient";
 
 const Alumni = () => {
     const [students, setStudents] = useState([]);
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 

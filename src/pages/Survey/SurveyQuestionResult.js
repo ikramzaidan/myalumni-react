@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import PieChart from "../../components/PieChart";
 import { apiGet } from "../../api/apiClient";
 
 const SurveyQuestionResult = () => {
     let { qid } = useParams();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [question, setQuestion] = useState({});
     const [labelData, setLabelData] = useState([]);
     const [datasetData, setDatasetData] = useState([]);
