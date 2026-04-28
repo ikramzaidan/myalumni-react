@@ -2,10 +2,10 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import Input from "../../components/Input";
 import TextArea from "../../components/TextArea";
 import { useState } from "react";
+import { apiPost } from "../../api/apiClient";
 // import Select from "../../components/Select";
 
 const AddSurvey = () => {
-    const { jwtToken } = useOutletContext();
     const { setAlertMessage } = useOutletContext();
 
     const [errors, setErrors] = useState([]);
@@ -53,11 +53,11 @@ const AddSurvey = () => {
 
         let errors = [];
         let required = [
-            { field: survey.title, name: "title"},
-            { field: survey.description, name: "description"},
-            { field: survey.has_time_limit, name: "has_time_limit"},
-            { field: survey.start_date, name: "start_date"},
-            { field: survey.end_date, name: "end_date"},
+            { field: survey.title, name: "title" },
+            { field: survey.description, name: "description" },
+            { field: survey.has_time_limit, name: "has_time_limit" },
+            { field: survey.start_date, name: "start_date" },
+            { field: survey.end_date, name: "end_date" },
         ]
 
         required.forEach(function (obj) {
@@ -72,21 +72,9 @@ const AddSurvey = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = survey;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/forms/create`, requestOptions)
-            .then((response) => response.json())
+        apiPost(`/forms/create`, requestBody)
             .then((data) => {
                 if (data.error) {
                     setAlertMessage(`Terjadi kesalahan: ${data.error}`);

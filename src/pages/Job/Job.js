@@ -1,10 +1,12 @@
 import { useOutletContext, useParams } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import { useEffect, useRef, useState } from 'react';
 import { PiBriefcaseFill } from "react-icons/pi";
 import { IoEllipsisVertical, IoLocationOutline, IoTimeOutline, IoWalletOutline } from 'react-icons/io5';
+import { apiGet } from '../../api/apiClient';
 
 const Job = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const { profile } = useOutletContext();
     const [isOwner, setIsOwner] = useState(false);
     const [job, setJob] = useState({});
@@ -37,17 +39,7 @@ const Job = () => {
 
     // Get data artikel pertama kali load
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/jobs/${id}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/jobs/${id}`)
             .then((data) => {
                 if(data.error === true) {
                     setJob({});

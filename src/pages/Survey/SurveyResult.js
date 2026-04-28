@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
+import { apiGet } from "../../api/apiClient";
 
 const SurveyResult = () => {
     let { id } = useParams();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [survey, setSurvey] = useState([]);
     const [focusQuestionId, setFocusQuestionId] = useState(null);
 
@@ -17,17 +18,7 @@ const SurveyResult = () => {
     }, [isAdmin, navigate]);
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/forms/${id}/answers`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/forms/${id}/answers`)
             .then((data) => {
                 setSurvey(data);
             })

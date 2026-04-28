@@ -4,6 +4,8 @@ import Input from './../components/Input';
 import Image from './../images/bg-2.jpg';
 import Logo from './../images/sma-logo.png';
 import { Link, useNavigate } from 'react-router-dom';
+import { apiPost } from '../api/apiClient';
+import { AUTH } from '../api/endpoints';
 
 const Register = () => {
     // const { jwtToken } = useOutletContext();
@@ -15,6 +17,7 @@ const Register = () => {
     const [step, setStep] = useState(1);
     const [errors, setErrors] = useState([]);
     const [passwordMatched, setPasswordMatched] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -51,7 +54,7 @@ const Register = () => {
         return error ? error.errorMsg : "";
     };
 
-    const handleFirstSubmit = (event) => {
+    const handleFirstSubmit = async (event) => {
         event.preventDefault();
 
         let payload = {
@@ -61,29 +64,22 @@ const Register = () => {
         if (payload.nisn === "") {
             addError("nisn", "Please enter a field");
         } else {
-            const requestOptions = {
-                method: "POST",
-                headers: {
-                    'Content-Type': "application/json"
-                },
-                credentials: 'include',
-                body: JSON.stringify(payload),
+            setIsLoading(true);
+            try {
+                const data = await apiPost(AUTH.REGISTER_CHECK, payload);
+                
+                if(data.error) {
+                    addError("nisn", data.message);
+                } else {
+                    deleteError("nisn");
+                    setAlumni(data);
+                    setStep(2);     
+                }
+            } catch (err) {
+                console.log(err);
+            } finally {
+                setIsLoading(false);
             }
-    
-            fetch(`http://localhost:8080/register_check`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if(data.error) {
-                        addError("nisn", data.message);
-                    } else {
-                        deleteError("nisn");
-                        setAlumni(data);
-                        setStep(2);     
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
         }
     }
 
@@ -92,7 +88,7 @@ const Register = () => {
         setStep(3);  
     }
 
-    const handleThirdSubmit = (event) => {
+    const handleThirdSubmit = async (event) => {
         event.preventDefault();
 
         let payload = {
@@ -102,19 +98,11 @@ const Register = () => {
             alumni_id: alumni.id
         }
 
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                'Content-Type': "application/json"
-            },
-            credentials: 'include',
-            body: JSON.stringify(payload),
-        }
-
         if (passwordMatched) {
-            fetch(`http://localhost:8080/register`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
+            setIsLoading(true);
+            try {
+                const data = await apiPost(AUTH.REGISTER, payload);
+                
                 if(data.error) {
                     if (data.message === "all fields are required") {
                         addError("email", "Please enter a field"); 
@@ -124,10 +112,11 @@ const Register = () => {
                 } else {
                     navigate("/login");          
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 console.log(err);
-            })
+            } finally {
+                setIsLoading(false);
+            }
         } else {
             addError("confirm_password", "Password harus sesuai.");
         }

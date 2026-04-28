@@ -1,13 +1,16 @@
-import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import Input from '../../components/Input';
 import { useEffect, useState } from 'react';
 import slugify from 'slugify';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-custom-build/build/ckeditor';
 import classNames from 'classnames';
+import { apiGet, apiPut, apiDelete, apiUpload } from '../../api/apiClient';
+import { ARTICLES, PROFILE } from '../../api/endpoints';
 
 const EditArticle = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [errors, setErrors] = useState([]);
     const [article, setArticle] = useState({});
     const [articleBody, setArticleBody] = useState({});
@@ -41,7 +44,7 @@ const EditArticle = () => {
         return errors.indexOf(key) !== -1;
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         let errors = [];
@@ -62,101 +65,65 @@ const EditArticle = () => {
             return false;
         }
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = { ...article, ...articleBody };
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "PATCH",
-            headers: headers,
-            credentials: "include",
+        try {
+            const data = await apiPut(ARTICLES.UPDATE(id), requestBody);
+            if (data.error) {
+                console.log(data.error);
+            } else {
+                navigate('/articles');
+            }
+        } catch (err) {
+            console.log(err);
         }
-
-        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
-            .then((response) => {if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();})
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    navigate('/articles');
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
     }
 
-    const handleDelete = () => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken)
-
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
+    const handleDelete = async () => {
+        try {
+            const data = await apiDelete(ARTICLES.DELETE(id));
+            if (data.error) {
+                console.log(data.error);
+            } else {
+                navigate("/articles");
+            }
+        } catch (err) {
+            console.log(err);
         }
-
-        fetch(`http://localhost:8080/articles/${id}`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    navigate("/articles");
-                }
-            })
-            .catch(err => {console.log(err)});
     }
 
     const imageUploadAdapter = (loader) => {
         return {
-            upload : () => {
+            upload: () => {
                 return new Promise((resolve, reject) => {
                     const body = new FormData();
                     loader.file.then((file) => {
                         body.append("image", file);
 
-                        const headers = new Headers();
-                        headers.append("Authorization", "Bearer " + jwtToken);
-
-                        const requestOptions = {
-                            body: body,
-                            method: "POST",
-                            headers: headers,
-                            credentials: "include",
-                        }
-
-                        fetch(`http://localhost:8080/upload_image`, requestOptions)
-                        .then((response => response.json()))
-                        .then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                            } else {
-                                resolve({ default: `http://localhost:8080/${data.file_path}` });
-                            }
-                        })
-                        .catch(err => {
-                            reject(err);
-                        })
+                        apiUpload(PROFILE.UPLOAD_IMAGE, body)
+                            .then((data) => {
+                                if (data.error) {
+                                    console.log(data.error);
+                                } else {
+                                    resolve({ default: `${process.env.REACT_APP_API_URL}/${data.file_path}` });
+                                }
+                            })
+                            .catch(err => {
+                                reject(err);
+                            })
                     })
                 });
             }
         }
     }
 
-    function imageUploadPlugin( editor ) {
-        editor.plugins.get( 'FileRepository' ).createUploadAdapter = ( loader ) => {
+    function imageUploadPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
             // Configure the URL to the upload script in your back-end here!
-            return imageUploadAdapter( loader );
+            return imageUploadAdapter(loader);
         };
     }
-    
+
     const handleStatusChange = () => {
         if (isSwitched && article.status === "published") {
             setArticle({
@@ -174,17 +141,7 @@ const EditArticle = () => {
     };
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/articles/${id}/show`, requestOptions)
-            .then((response) => response.json())
+        apiGet(ARTICLES.SHOW(id))
             .then((data) => {
                 setArticle(data);
                 setIsSwithed(data.status === "published" ? true : false);
@@ -236,21 +193,21 @@ const EditArticle = () => {
                             config={{
                                 extraPlugins: [imageUploadPlugin]
                             }}
-                            editor={ ClassicEditor }
+                            editor={ClassicEditor}
                             data={article.body}
                             onReady={(editor) => {
                                 editor.editing.view.change((writer) => {
-                                writer.setStyle(
-                                    "min-height",
-                                    "200px",
-                                    editor.editing.view.document.getRoot()
-                                );
+                                    writer.setStyle(
+                                        "min-height",
+                                        "200px",
+                                        editor.editing.view.document.getRoot()
+                                    );
                                 });
                             }}
-                            onChange={ ( event, editor ) => {
+                            onChange={(event, editor) => {
                                 const data = editor.getData();
-                                handleChange("body")({target: {value: data}});
-                            } }
+                                handleChange("body")({ target: { value: data } });
+                            }}
                         />
                     </div>
                 </div>

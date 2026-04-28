@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import PieChart from "../../components/PieChart";
+import { apiGet } from "../../api/apiClient";
 
 const SurveyQuestionResult = () => {
     let { qid } = useParams();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [question, setQuestion] = useState({});
     const [labelData, setLabelData] = useState([]);
     const [datasetData, setDatasetData] = useState([]);
@@ -19,17 +20,7 @@ const SurveyQuestionResult = () => {
     }, [isAdmin, navigate]);
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/questions/${qid}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/questions/${qid}`)
             .then((data) => {
                 setQuestion(data);
                 if (data.answers && data.answers_group) {

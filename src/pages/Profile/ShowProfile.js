@@ -1,12 +1,15 @@
-import { Link, useOutletContext, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { useEffect, useState } from "react";
 import { FaFacebookF, FaInstagram, FaTiktok, FaTwitter } from "react-icons/fa6";
 import { IoChatbubbleOutline, IoHeart, IoHeartOutline, IoSend } from "react-icons/io5";
 import { PiBriefcaseFill, PiGraduationCapFill, PiNewspaperClippingFill } from "react-icons/pi";
 import DateTimeDisplay from "../../components/DateTimeDisplay";
+import { apiGet, apiPost } from "../../api/apiClient";
+import { PROFILE, FORUMS, LIKES } from "../../api/endpoints";
 
 const ShowProfile = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     let { username } = useParams();
 
     const [profile, setProfile] = useState({});
@@ -21,17 +24,7 @@ const ShowProfile = () => {
     const likedForumIds = new Set((likes || []).map(like => like.forum_id));
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/profile/${username}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(PROFILE.GET_BY_USERNAME(username))
             .then((data) => {
                 setProfile({
                     id: data.id || "",
@@ -54,8 +47,7 @@ const ShowProfile = () => {
                 console.log(err);
             });
 
-        fetch(`http://localhost:8080/forums/user/${username}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(FORUMS.GET_BY_USER(username))
             .then((data) => {
                 setForums(data);
             })
@@ -63,8 +55,7 @@ const ShowProfile = () => {
                 console.log(err);
             });
 
-        fetch(`http://localhost:8080/likes`, requestOptions)
-            .then((response) => response.json())
+        apiGet(LIKES.LIST)
             .then((data) => {
                 setLikes(data);
                 setNewLike(false);
@@ -78,44 +69,21 @@ const ShowProfile = () => {
     const handleLike = (id) => (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
+        const endpoint = likedForumIds.has(id)
+            ? FORUMS.UNLIKE(id)
+            : FORUMS.LIKE(id);
 
-        const requestOptions = {
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        if (likedForumIds.has(id)) {
-            fetch(`http://localhost:8080/forums/${id}/unlike`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        setNewLike(true);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        } else {
-            fetch(`http://localhost:8080/forums/${id}/like`, requestOptions)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.error) {
-                        console.log(data.error);
-                    } else {
-                        setNewLike(true);
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        }
-
+        apiPost(endpoint, {})
+            .then((data) => {
+                if (data.error) {
+                    console.log(data.error);
+                } else {
+                    setNewLike(true);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     const handleChange = (type) => (event) => {
@@ -146,36 +114,22 @@ const ShowProfile = () => {
         }
     }
 
-    const handleCommentSubmit = (event) => {
+    const handleCommentSubmit = async (event) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
+        try {
+            const data = await apiPost(FORUMS.REPLY(comment.forum_id), comment);
 
-        const requestBody = comment;
-
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
+            if (data.error) {
+                console.log(data.error);
+            } else {
+                setNewComment(true);
+                setAddComment(false);
+                setComment({});
+            }
+        } catch (err) {
+            console.log(err);
         }
-
-        fetch(`http://localhost:8080/forums/${comment.forum_id}/reply`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    setNewComment(true);
-                    setAddComment(false);
-                    setComment({});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
     }
 
     return (
@@ -184,74 +138,74 @@ const ShowProfile = () => {
             <div className="flex flex-col gap-4">
                 <div className="relative border rounded-xl shadow-md">
                     <div className="absolute -z-10 rounded-xl rounded-b-none w-full h-32 bg-red-400"></div>
-                        <div className="flex flex-col p-5 pt-16">
-                            <div className="bg-gray-300 rounded-full w-36 h-36 aspect-square overflow-hidden border-4 border-white">
-                                <img src={profile.photo && profile.photo !== "" ? `http://localhost:8080/${profile.photo}` : "http://localhost:8080/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
-                            </div>
-                            <div className="flex flex-col px-1">
-                                <h3 className="text-xl font-bold mt-5">{ profile.user_name }</h3>
-                                <h4 className="text-base text-gray-600 font-normal">@{ profile.user_username }</h4>
-                                { profile.bio !== "" ? (
-                                    <p className="mt-3 mb-3">{profile.bio}</p>
-                                ) : "" }
-                                <div className="flex gap-2 items-center">
-                                    {profile.sm_facebook !== "" ? (
-                                        <div className="p-2 text-lg text-white bg-black rounded-md"><FaFacebookF /></div>
-                                    ) : ("")}
-                                    {profile.sm_instagram !== "" ? (
-                                        <div className="p-2 text-lg text-white bg-black rounded-md"><FaInstagram /></div>
-                                    ) : ("")}
-                                    {profile.sm_twitter !== "" ? (
-                                        <div className="p-2 text-lg text-white bg-black rounded-md"><FaTwitter /></div>
-                                    ) : ("")}
-                                    {profile.sm_tiktok !== "" ? (
-                                        <div className="p-2 text-lg text-white bg-black rounded-md"><FaTiktok /></div>
-                                    ) : ("")}
-                                </div>
-                            </div>
-                            <div className="flex flex-col xl:grid xl:grid-cols-2">
-                                {/* Pendidikan */}
-                                {!profile.educations || profile.educations.length === 0 ? ("") : (
-                                    <div className="flex flex-col gap-2 mt-5">
-                                        <div className="font-bold text-base">Pendidikan</div>
-                                        {profile.educations.map((e) => (
-                                            <div className="flex flex-row items-center justify-between gap-3" key={e.id}>
-                                                <div className="flex flex-row items-center gap-3">
-                                                    <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
-                                                        <PiGraduationCapFill className="text-white text-3xl" />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <div className="text-sm font-semibold">{e.school_name}</div>
-                                                        <div className="text-sm">{e.school_degree}, {e.school_study_major}</div>
-                                                        <div className="text-sm">{e.start_year} - {e.end_year}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                {/* Pekerjaan */}
-                                {!profile.jobs || profile.jobs.length === 0 ? ("") : (
-                                    <div className="flex flex-col gap-2 mt-5">
-                                        <div className="font-bold text-base">Pekerjaan</div>
-                                        {profile.jobs.map((j) => (
-                                            <div className="flex flex-row items-center justify-between gap-3" key={j.id}>
-                                                <div className="flex flex-row items-center gap-3">
-                                                    <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
-                                                        <PiBriefcaseFill className="text-white text-3xl" />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <div className="text-sm font-semibold">{j.position}</div>
-                                                        <div className="text-sm">{j.company}, {j.location}</div>
-                                                        <div className="text-sm">{j.start_year} - {j.end_year}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                    <div className="flex flex-col p-5 pt-16">
+                        <div className="bg-gray-300 rounded-full w-36 h-36 aspect-square overflow-hidden border-4 border-white">
+                            <img src={profile.photo && profile.photo !== "" ? `${process.env.REACT_APP_API_URL}/${profile.photo}` : `${process.env.REACT_APP_API_URL}/public/no-image.png`} className="object-cover w-full h-full" alt="Profile" />
+                        </div>
+                        <div className="flex flex-col px-1">
+                            <h3 className="text-xl font-bold mt-5">{profile.user_name}</h3>
+                            <h4 className="text-base text-gray-600 font-normal">@{profile.user_username}</h4>
+                            {profile.bio !== "" ? (
+                                <p className="mt-3 mb-3">{profile.bio}</p>
+                            ) : ""}
+                            <div className="flex gap-2 items-center">
+                                {profile.sm_facebook !== "" ? (
+                                    <div className="p-2 text-lg text-white bg-black rounded-md"><FaFacebookF /></div>
+                                ) : ("")}
+                                {profile.sm_instagram !== "" ? (
+                                    <div className="p-2 text-lg text-white bg-black rounded-md"><FaInstagram /></div>
+                                ) : ("")}
+                                {profile.sm_twitter !== "" ? (
+                                    <div className="p-2 text-lg text-white bg-black rounded-md"><FaTwitter /></div>
+                                ) : ("")}
+                                {profile.sm_tiktok !== "" ? (
+                                    <div className="p-2 text-lg text-white bg-black rounded-md"><FaTiktok /></div>
+                                ) : ("")}
                             </div>
                         </div>
+                        <div className="flex flex-col xl:grid xl:grid-cols-2">
+                            {/* Pendidikan */}
+                            {!profile.educations || profile.educations.length === 0 ? ("") : (
+                                <div className="flex flex-col gap-2 mt-5">
+                                    <div className="font-bold text-base">Pendidikan</div>
+                                    {profile.educations.map((e) => (
+                                        <div className="flex flex-row items-center justify-between gap-3" key={e.id}>
+                                            <div className="flex flex-row items-center gap-3">
+                                                <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
+                                                    <PiGraduationCapFill className="text-white text-3xl" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <div className="text-sm font-semibold">{e.school_name}</div>
+                                                    <div className="text-sm">{e.school_degree}, {e.school_study_major}</div>
+                                                    <div className="text-sm">{e.start_year} - {e.end_year}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            {/* Pekerjaan */}
+                            {!profile.jobs || profile.jobs.length === 0 ? ("") : (
+                                <div className="flex flex-col gap-2 mt-5">
+                                    <div className="font-bold text-base">Pekerjaan</div>
+                                    {profile.jobs.map((j) => (
+                                        <div className="flex flex-row items-center justify-between gap-3" key={j.id}>
+                                            <div className="flex flex-row items-center gap-3">
+                                                <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
+                                                    <PiBriefcaseFill className="text-white text-3xl" />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <div className="text-sm font-semibold">{j.position}</div>
+                                                    <div className="text-sm">{j.company}, {j.location}</div>
+                                                    <div className="text-sm">{j.start_year} - {j.end_year}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
                 {!forums || forums.length === 0 ? (
                     <div className="flex flex-col w-full h-64 justify-center items-center text-gray-400">
@@ -260,66 +214,66 @@ const ShowProfile = () => {
                     </div>
                 ) : (
                     <>
-                    {forums.map((q) => (
-                        <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
-                            <div className="flex gap-2 items-center">
-                                <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                                </svg>
-                                <div className="flex flex-col">
-                                    {q.user_name ? (
-                                        <div className="font-semibold">{q.user_name} <span className="text-sm font-light">@{q.user_username}</span></div>
-                                    ) : (
-                                        <div className="font-semibold">{q.user_username}</div>
-                                    )}
-                                    <div className="text-gray-500 text-xs font-normal"><DateTimeDisplay dateTimeStr={q.published_at} /></div>
+                        {forums.map((q) => (
+                            <div className="flex flex-col gap-3 border shadow rounded-xl bg-white p-4 font-normal" key={q.id}>
+                                <div className="flex gap-2 items-center">
+                                    <svg className="w-10 h-10 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                    <div className="flex flex-col">
+                                        {q.user_name ? (
+                                            <div className="font-semibold">{q.user_name} <span className="text-sm font-light">@{q.user_username}</span></div>
+                                        ) : (
+                                            <div className="font-semibold">{q.user_username}</div>
+                                        )}
+                                        <div className="text-gray-500 text-xs font-normal"><DateTimeDisplay dateTimeStr={q.published_at} /></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <p>{q.forum_text}</p>
-                            <div className="w-full border mt-3"></div>
-                            <div className="flex gap-5 items-center">
-                                <button type="button" className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500" onClick={handleLike(q.id)}>
-                                    {likedForumIds.has(q.id) ? (
-                                        <IoHeart size={21} className="text-red-500" />
-                                    ) : (
-                                        <IoHeartOutline size={21} className="stroke-w-3" />
-                                    )}
-                                    {!q.likes_number ? (
-                                        <span className="text-base">Suka</span>
-                                    ) : (
-                                        <span className="text-base">{q.likes_number}</span>
-                                    )}
-                                </button>
-                                <div onClick={() => handleAddComment(q.id)} className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500">
-                                    <IoChatbubbleOutline className="stroke-w-3 " />
-                                    {!q.comments_number ? (
-                                        <span className="text-base">Komentar</span>
-                                    ) : (
-                                        <span className="text-base">{q.comments_number}</span>
-                                    )}
+                                <p>{q.forum_text}</p>
+                                <div className="w-full border mt-3"></div>
+                                <div className="flex gap-5 items-center">
+                                    <button type="button" className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500" onClick={handleLike(q.id)}>
+                                        {likedForumIds.has(q.id) ? (
+                                            <IoHeart size={21} className="text-red-500" />
+                                        ) : (
+                                            <IoHeartOutline size={21} className="stroke-w-3" />
+                                        )}
+                                        {!q.likes_number ? (
+                                            <span className="text-base">Suka</span>
+                                        ) : (
+                                            <span className="text-base">{q.likes_number}</span>
+                                        )}
+                                    </button>
+                                    <div onClick={() => handleAddComment(q.id)} className="flex items-center gap-1.5 text-xl text-gray-500 hover:text-red-500">
+                                        <IoChatbubbleOutline className="stroke-w-3 " />
+                                        {!q.comments_number ? (
+                                            <span className="text-base">Komentar</span>
+                                        ) : (
+                                            <span className="text-base">{q.comments_number}</span>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                            { q.comments_number ? (
+                                {q.comments_number ? (
                                     <>
-                                    <div className="w-full border"></div>
-                                    { q.comments && q.comments.map((c) => (
-                                        <div className="flex gap-2 items-start" key={c.id}>
-                                            <svg className="w-8 h-8 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                                            </svg>
-                                            <div className="flex flex-col">
-                                                {c.user_name ? (
-                                                    <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_name} <span className="text-sm font-light">@{c.user_username}</span></Link>
-                                                ) : (
-                                                    <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_username}</Link>
-                                                )}
-                                                <p className="text-sm mt-1">{c.reply_text}</p>
+                                        <div className="w-full border"></div>
+                                        {q.comments && q.comments.map((c) => (
+                                            <div className="flex gap-2 items-start" key={c.id}>
+                                                <svg className="w-8 h-8 text-black hover:text-gray-700 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a9 9 0 0 0 5-1.5 4 4 0 0 0-4-3.5h-2a4 4 0 0 0-4 3.5 9 9 0 0 0 5 1.5Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                </svg>
+                                                <div className="flex flex-col">
+                                                    {c.user_name ? (
+                                                        <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_name} <span className="text-sm font-light">@{c.user_username}</span></Link>
+                                                    ) : (
+                                                        <Link to={`/profile/${c.user_username}`} className="text-sm font-semibold">{c.user_username}</Link>
+                                                    )}
+                                                    <p className="text-sm mt-1">{c.reply_text}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))}
                                     </>
-                                ) : ("") }
-                                { addComment && addCommentId === q.id ? (
+                                ) : ("")}
+                                {addComment && addCommentId === q.id ? (
                                     <>
                                         <div className="w-full border"></div>
                                         <form onSubmit={handleCommentSubmit}>
@@ -335,13 +289,13 @@ const ShowProfile = () => {
                                             </div>
                                         </form>
                                     </>
-                                ) : ("") }
-                        </div>
-                    ))}
+                                ) : ("")}
+                            </div>
+                        ))}
                     </>
                 )}
             </div>
-            
+
         </>
     );
 }

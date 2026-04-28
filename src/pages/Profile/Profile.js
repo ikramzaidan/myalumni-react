@@ -1,12 +1,15 @@
 import { useOutletContext } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
 import { useEffect, useState } from "react";
 import { TiPencil } from "react-icons/ti";
 import { IoAdd } from "react-icons/io5";
 import { PiGraduationCapFill, PiBriefcaseFill } from "react-icons/pi";
 import { FaTrash } from "react-icons/fa6";
+import { apiGet, apiPost, apiPatch, apiDelete, apiUpload } from "../../api/apiClient";
+import { PROFILE } from "../../api/endpoints";
 
 const Profile = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const { setAlertMessage } = useOutletContext();
     // const navigate = useNavigate();
 
@@ -24,17 +27,7 @@ const Profile = () => {
 
     // Get data alumni saat pertama kali load
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/profile`, requestOptions)
-            .then((response) => response.json())
+        apiGet(PROFILE.GET)
             .then((data) => {
                 setProfile({
                     user_id: data.user_id || "",
@@ -78,7 +71,7 @@ const Profile = () => {
                 [name]: value,
             }));
         }
-        
+
     }
 
     const handleImageChange = (event) => {
@@ -97,100 +90,42 @@ const Profile = () => {
         }
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         setSubmitPending(true);
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
+        try {
+            let photoPath = profile.photo;
 
-        if(image.data) {
-            const firstRequestOptions = {
-                body: image.data,
-                method: "POST",
-                headers: headers,
-                credentials: "include",
+            // Upload image first if selected
+            if (image.data) {
+                const data = await apiUpload(PROFILE.UPLOAD_IMAGE, image.data);
+                if (data.error) {
+                    console.log(data.error);
+                    setSubmitPending(false);
+                    return;
+                }
+                photoPath = data.file_path;
             }
 
-            fetch(`http://localhost:8080/upload_image`, firstRequestOptions)
-            .then((response => response.json()))
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    setSubmitPending(false);
-                } else {
-                    setProfile((prevProfile) => {
-                        const updatedProfile = { ...prevProfile, photo: data.file_path };
+            const updatedProfile = { ...profile, photo: photoPath };
 
-                        // Create a new fetch request for updating the profile
-                        const headers = new Headers();
-                        headers.append("Authorization", "Bearer " + jwtToken);
-                        headers.append("Content-Type", "application/json");
+            // Update profile
+            const data = await apiPatch(PROFILE.UPDATE, updatedProfile);
 
-                        const requestOptions = {
-                            body: JSON.stringify(updatedProfile),
-                            method: "PATCH",
-                            headers: headers,
-                            credentials: "include",
-                        };
-
-                        fetch(`http://localhost:8080/profile/update`, requestOptions)
-                        .then((response) => response.json())
-                        .then((data) => {
-                            if (data.error) {
-                                console.log(data.error);
-                                setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                                setSubmitPending(false);
-                            } else {
-                                setUpdateProfile(true);
-                                setAlertMessage("Profil berhasil diperbarui.");
-                                setSubmitPending(false);
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                            setSubmitPending(false);
-                        })
-                    })
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                setSubmitPending(false);
-            })
-
-        } else {
-            const headers = new Headers();
-            headers.append("Authorization", "Bearer " + jwtToken);
-            headers.append("Content-Type", "application/json");
-
-            const requestOptions = {
-                body: JSON.stringify(profile),
-                method: "PATCH",
-                headers: headers,
-                credentials: "include",
-            };
-
-            fetch(`http://localhost:8080/profile/update`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                    setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                    setSubmitPending(false);
-                } else {
-                    setUpdateProfile(true);
-                    setAlertMessage("Profil berhasil diperbarui.");
-                    setSubmitPending(false);
-                }
-            })
-            .catch(err => {
-                console.log(err);
+            if (data.error) {
+                console.log(data.error);
                 setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-                setSubmitPending(false);
-            })
+            } else {
+                setUpdateProfile(true);
+                setAlertMessage("Profil berhasil diperbarui.");
+            }
+        } catch (err) {
+            console.log(err);
+            setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
+        } finally {
+            setSubmitPending(false);
         }
     }
 
@@ -200,7 +135,7 @@ const Profile = () => {
             setJobAddSection(false);
         }
     };
-      
+
     const handleJobAddSection = () => {
         setJobAddSection((prev) => !prev);
         if (educationAddSection) {
@@ -208,59 +143,36 @@ const Profile = () => {
         }
     };
 
-    const handleSubmitEducation = (event) => {
+    const handleSubmitEducation = async (event) => {
         event.preventDefault();
 
         setSubmitPending(true);
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
+        try {
+            const data = await apiPost(PROFILE.EDUCATIONS.CREATE, education);
 
-        const requestOptions = {
-            body: JSON.stringify(education),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/educations/create`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Pendidikan gagal disimpan.");
-                setSubmitPending(false);
             } else {
                 setUpdateProfile(true);
                 setEducationAddSection(false);
                 setAlertMessage("Pendidikan berhasil disimpan.");
-                setSubmitPending(false);
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Pendidikan gagal disimpan.");
+        } finally {
             setSubmitPending(false);
-        })
+        }
     }
 
-    const handleDeleteEducation = (event, id) => {
+    const handleDeleteEducation = async (event, id) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
+        try {
+            const data = await apiDelete(PROFILE.EDUCATIONS.DELETE(id));
 
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/educations/${id}`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
@@ -268,66 +180,42 @@ const Profile = () => {
                 setUpdateProfile(true);
                 setAlertMessage("Profil berhasil diperbarui.");
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-        })
+        }
     }
 
-    const handleSubmitJob = (event) => {
+    const handleSubmitJob = async (event) => {
         event.preventDefault();
 
         setSubmitPending(true);
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
+        try {
+            const data = await apiPost(PROFILE.JOBS.CREATE, job);
 
-        const requestOptions = {
-            body: JSON.stringify(job),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/jobs/create`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Pekerjaan gagal disimpan.");
-                setSubmitPending(false);
             } else {
                 setUpdateProfile(true);
                 setJobAddSection(false);
                 setAlertMessage("Pekerjaan berhasil disimpan.");
-                setSubmitPending(false);
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Pekerjaan gagal disimpan.");
+        } finally {
             setSubmitPending(false);
-        })
+        }
     }
 
-    const handleDeleteJob = (event, id) => {
+    const handleDeleteJob = async (event, id) => {
         event.preventDefault();
 
-        const headers = new Headers();
-        headers.append("Authorization", "Bearer " + jwtToken);
-        headers.append("Content-Type", "application/json");
+        try {
+            const data = await apiDelete(PROFILE.JOBS.DELETE(id));
 
-        const requestOptions = {
-            method: "DELETE",
-            headers: headers,
-            credentials: "include",
-        };
-
-        fetch(`http://localhost:8080/profile/jobs/${id}`, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
             if (data.error) {
                 console.log(data.error);
                 setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
@@ -335,11 +223,10 @@ const Profile = () => {
                 setUpdateProfile(true);
                 setAlertMessage("Profil berhasil diperbarui.");
             }
-        })
-        .catch(err => {
+        } catch (err) {
             console.log(err);
             setAlertMessage("Terjadi kesalahan. Profil gagal diperbarui.");
-        })
+        }
     }
 
     return (
@@ -347,8 +234,8 @@ const Profile = () => {
             <div className="flex justify-between items-center w-full mb-5">
                 <h2 className="text-lg font-bold">Alumni</h2>
             </div>
-                {/* <pre>{JSON.stringify(profile, null, 3)}</pre> */}
-                {profile && Object.keys(profile).length !== 0 ? (
+            {/* <pre>{JSON.stringify(profile, null, 3)}</pre> */}
+            {profile && Object.keys(profile).length !== 0 ? (
                 <div className="flex flex-col gap-4">
                     <div className="border rounded-xl shadow-md">
                         <div className="w-full rounded-t-xl bg-black p-5"></div>
@@ -358,7 +245,7 @@ const Profile = () => {
                                     {selectedImage ? (
                                         <img src={selectedImage} className="object-cover w-full h-full" alt="Profile" />
                                     ) : (
-                                        <img src={profile.photo !== "" ? `http://localhost:8080/${profile.photo}` : "http://localhost:8080/public/no-image.png"} className="object-cover w-full h-full" alt="Profile" />
+                                        <img src={profile.photo !== "" ? `${process.env.REACT_APP_API_URL}/${profile.photo}` : `${process.env.REACT_APP_API_URL}/public/no-image.png`} className="object-cover w-full h-full" alt="Profile" />
                                     )}
                                     <div className="absolute aspect-square rounded-full inset-0 flex justify-center items-center opacity-0 hover:bg-gradient-to-t hover:from-black hover:to-black/50 hover:opacity-100 transition-opacity duration-300">
                                         <div className="flex gap-0.5 text-white">
@@ -370,8 +257,8 @@ const Profile = () => {
                             </label>
                             <input id="photo" type="file" name="image" className="hidden" onChange={handleImageChange} />
                             <div className="flex flex-col">
-                                <h3 className="text-xl font-bold mt-10 mb-1 px-0">{ profile.user_name }</h3>
-                                <h3 className="text-base font-normal mb-2 px-0">@{ profile.user_username }</h3>
+                                <h3 className="text-xl font-bold mt-10 mb-1 px-0">{profile.user_name}</h3>
+                                <h3 className="text-base font-normal mb-2 px-0">@{profile.user_username}</h3>
                             </div>
                         </div>
                     </div>
@@ -386,34 +273,34 @@ const Profile = () => {
                                 </div>
                                 {!educationAddSection ? (
                                     <>
-                                    {!profile.educations || profile.educations.length === 0 ? (
-                                        <div className="flex flex-col bg-gray-100 text-gray-500 p-5 justify-center items-center rounded-md">
-                                            <div className="text-4xl mb-1"><PiGraduationCapFill /></div>
-                                            <div className="text-xl font-bold">Belum ada data riwayat pendidikan</div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                        {profile.educations.map((e) => (
-                                            <div className="flex flex-row items-center justify-between gap-3 py-1 px-3 hover:bg-gray-100" key={e.id} onMouseEnter={() => setEducationIsHovered(e.id)} onMouseLeave={() => setEducationIsHovered(null)}>
-                                                <div className="flex flex-row items-center gap-3">
-                                                    <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
-                                                        <PiGraduationCapFill className="text-white text-3xl" />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <div className="font-bold">{e.school_name}</div>
-                                                        <div className="">{e.school_degree}, {e.school_study_major}</div>
-                                                        <div className="">{e.start_year} - {e.end_year}</div>
-                                                    </div>
-                                                </div>
-                                                {educationIsHovered === e.id && (
-                                                    <div className="flex px-3">
-                                                        <button onClick={(event) => handleDeleteEducation(event, e.id)}><FaTrash /></button>
-                                                    </div>
-                                                )}
+                                        {!profile.educations || profile.educations.length === 0 ? (
+                                            <div className="flex flex-col bg-gray-100 text-gray-500 p-5 justify-center items-center rounded-md">
+                                                <div className="text-4xl mb-1"><PiGraduationCapFill /></div>
+                                                <div className="text-xl font-bold">Belum ada data riwayat pendidikan</div>
                                             </div>
-                                        ))}
-                                        </>
-                                    )}
+                                        ) : (
+                                            <>
+                                                {profile.educations.map((e) => (
+                                                    <div className="flex flex-row items-center justify-between gap-3 py-1 px-3 hover:bg-gray-100" key={e.id} onMouseEnter={() => setEducationIsHovered(e.id)} onMouseLeave={() => setEducationIsHovered(null)}>
+                                                        <div className="flex flex-row items-center gap-3">
+                                                            <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
+                                                                <PiGraduationCapFill className="text-white text-3xl" />
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <div className="font-bold">{e.school_name}</div>
+                                                                <div className="">{e.school_degree}, {e.school_study_major}</div>
+                                                                <div className="">{e.start_year} - {e.end_year}</div>
+                                                            </div>
+                                                        </div>
+                                                        {educationIsHovered === e.id && (
+                                                            <div className="flex px-3">
+                                                                <button onClick={(event) => handleDeleteEducation(event, e.id)}><FaTrash /></button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
                                     </>
                                 ) : (
                                     <form onSubmit={handleSubmitEducation}>
@@ -487,34 +374,34 @@ const Profile = () => {
                                 </div>
                                 {!jobAddSection ? (
                                     <>
-                                    {!profile.jobs || profile.jobs.length === 0 ? (
-                                        <div className="flex flex-col bg-gray-100 text-gray-500 p-5 justify-center items-center rounded-md">
-                                            <div className="text-4xl mb-1"><PiBriefcaseFill /></div>
-                                            <div className="text-xl font-bold">Belum ada data riwayat pekerjaan</div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                        {profile.jobs.map((j) => (
-                                            <div className="flex flex-row items-center justify-between gap-3 py-1 px-3 hover:bg-gray-100" key={j.id} onMouseEnter={() => setJobIsHovered(j.id)} onMouseLeave={() => setJobIsHovered(null)}>
-                                                <div className="flex flex-row items-center gap-3">
-                                                    <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
-                                                        <PiBriefcaseFill className="text-white text-3xl" />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <div className="font-bold">{j.position}</div>
-                                                        <div className="">{j.company}, {j.company_location}</div>
-                                                        <div className="">{j.start_year} - {j.end_year}</div>
-                                                    </div>
-                                                </div>
-                                                {jobIsHovered === j.id && (
-                                                    <div className="flex px-3">
-                                                        <button onClick={(event) => handleDeleteJob(event, j.id)}><FaTrash /></button>
-                                                    </div>
-                                                )}
+                                        {!profile.jobs || profile.jobs.length === 0 ? (
+                                            <div className="flex flex-col bg-gray-100 text-gray-500 p-5 justify-center items-center rounded-md">
+                                                <div className="text-4xl mb-1"><PiBriefcaseFill /></div>
+                                                <div className="text-xl font-bold">Belum ada data riwayat pekerjaan</div>
                                             </div>
-                                        ))}
-                                        </>
-                                    )}
+                                        ) : (
+                                            <>
+                                                {profile.jobs.map((j) => (
+                                                    <div className="flex flex-row items-center justify-between gap-3 py-1 px-3 hover:bg-gray-100" key={j.id} onMouseEnter={() => setJobIsHovered(j.id)} onMouseLeave={() => setJobIsHovered(null)}>
+                                                        <div className="flex flex-row items-center gap-3">
+                                                            <div className="flex justify-center items-center bg-gray-300 rounded-full w-14 h-auto aspect-square overflow-hidden">
+                                                                <PiBriefcaseFill className="text-white text-3xl" />
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <div className="font-bold">{j.position}</div>
+                                                                <div className="">{j.company}, {j.company_location}</div>
+                                                                <div className="">{j.start_year} - {j.end_year}</div>
+                                                            </div>
+                                                        </div>
+                                                        {jobIsHovered === j.id && (
+                                                            <div className="flex px-3">
+                                                                <button onClick={(event) => handleDeleteJob(event, j.id)}><FaTrash /></button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
                                     </>
                                 ) : (
                                     <form onSubmit={handleSubmitJob}>
@@ -595,7 +482,7 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="w-full border rounded-xl shadow-md p-5">
                         {/* <pre>{JSON.stringify(profile, null, 3)}</pre> */}
                         <form onSubmit={handleSubmit}>
@@ -674,10 +561,10 @@ const Profile = () => {
                             </div>
                         </form>
                     </div>
-                    
+
                 </div>
-                ) : ("")}
-            
+            ) : ("")}
+
         </>
     );
 }

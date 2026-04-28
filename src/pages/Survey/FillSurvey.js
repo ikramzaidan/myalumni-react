@@ -1,11 +1,12 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
+import { apiGet, apiPost } from "../../api/apiClient";
 
 const FillSurvey = () => {
     let { id } = useParams();
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const { setAlertMessage } = useOutletContext();
     const decodedJwt = jwtDecode(jwtToken);
     const [survey, setSurvey] = useState({});
@@ -25,17 +26,7 @@ const FillSurvey = () => {
     };
 
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/forms/${id}/show`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/forms/${id}/show`)
             .then((data) => {
                 // Set survey data
                 setSurvey(data);
@@ -126,21 +117,9 @@ const FillSurvey = () => {
         if (requiredQuestions !== answers.length) {
             setIsError(true);
         } else {
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            headers.append("Authorization", "Bearer " + jwtToken);
-
             const requestBody = answers;
 
-            const requestOptions = {
-                body: JSON.stringify(requestBody),
-                method: "POST",
-                headers: headers,
-                credentials: "include",
-            }
-
-            fetch(`http://localhost:8080/forms/${id}/submit`, requestOptions)
-                .then((response) => response.json())
+            apiPost(`/forms/${id}/submit`, requestBody)
                 .then((data) => {
                     if (data.error) {
                         setAlertMessage(`Terjadi kesalahan: ${data.error}`);

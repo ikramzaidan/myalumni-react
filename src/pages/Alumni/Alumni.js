@@ -2,28 +2,19 @@ import { useEffect, useState } from "react";
 import { FaEye } from "react-icons/fa6";
 import { IoAdd } from "react-icons/io5";
 import { PiStudentBold } from "react-icons/pi";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
+import { apiGet } from "../../api/apiClient";
 
 const Alumni = () => {
     const [students, setStudents] = useState([]);
-    const { jwtToken } = useOutletContext();
-    const { isAdmin } = useOutletContext();
+    const { jwtToken, isAdmin } = useAuth();
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         if (jwtToken !== "") {
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            headers.append("Authorization", "Bearer " + jwtToken);
-
-            const requestOptions = {
-                method: "GET",
-                headers: headers,
-            }
-
-            fetch(`http://localhost:8080/alumni`, requestOptions)
-                .then((response) => response.json())
+            apiGet(`/alumni`)
                 .then((data) => {
                     setStudents(data);
                     setFilteredStudents(data);

@@ -1,54 +1,34 @@
-import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from 'react';
 import Input from './../components/Input';
 import Background from './../images/bg.jpg';
 import TSLogo from './../images/ts-logo.png';
 import Image from './../images/bg-2.png';
-import { Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 const Login = () => {
-    const { jwtToken } = useOutletContext();
-    const { setJwtToken } = useOutletContext();
-    const { setIsAdmin } = useOutletContext();
-    const { setMyUsername } = useOutletContext();
+    const { jwtToken, login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
+        setIsLoading(true);
+        setError(false);
 
-        let payload = {
-            email: email,
-            password: password,
+        const result = await login(email, password);
+        
+        setIsLoading(false);
+        
+        if (result.error) {
+            setError(true);
+        } else {
+            navigate("/");
         }
-
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                'Content-Type': "application/json"
-            },
-            credentials: 'include',
-            body: JSON.stringify(payload),
-        }
-
-        fetch(`http://localhost:8080/authenticate`, requestOptions)
-            .then((response) => response.json())
-            .then((data) => {
-                if(data.error) {
-                    setError(true);
-                } else {
-                    setJwtToken(data.access_token);
-                    const decodedJwt = jwtDecode(data.access_token);
-                    setIsAdmin(decodedJwt.adm);
-                    setMyUsername(decodedJwt.name); 
-                }
-            })
-            .catch(error => {
-                console.log(error);
-            })
     }
 
     useEffect(() => {
@@ -105,9 +85,11 @@ const Login = () => {
                                 </div>
                                 <button 
                                     type="submit" 
-                                    className="text-white text-sm text-center py-3 px-7 bg-black font-bold
-                                        hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300"   
-                                >Login</button>
+                                    className="text-white text-sm text-center py-3 px-7 bg-black font-bold hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:bg-gray-400"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Loading...' : 'Login'}
+                                </button>
                             </form>
                             <div className="text-sm">Belum punya akun? <Link to="/register" className="font-semibold text-red-500 hover:underline">Daftar</Link></div>
                         </div>

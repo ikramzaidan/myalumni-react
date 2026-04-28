@@ -1,24 +1,16 @@
 import { useEffect, useState } from "react";
-import { useOutletContext, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../auth/AuthContext";
+import { apiGet } from "../../api/apiClient";
 
 const Article = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [article, setArticle] = useState({});
     let { slug } = useParams();
 
     // Get data artikel pertama kali load
     useEffect(() => {
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch(`http://localhost:8080/articles/${slug}`, requestOptions)
-            .then((response) => response.json())
+        apiGet(`/articles/${slug}`)
             .then((data) => {
                 setArticle(data);
             })

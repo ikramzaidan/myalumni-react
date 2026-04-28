@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import ErrorPage from './pages/ErrorPage';
 import Loading from './pages/Loading';
 import Home from './pages/Home';
+import ProtectedRoute from './auth/ProtectedRoute';
 
 import Alumni from './pages/Alumni/Alumni';
 import AddAlumni from './pages/Alumni/AddAlumni';
@@ -46,8 +47,12 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Layout />,
+        element: <ProtectedRoute />,
         children: [
+          {
+            path: "/",
+            element: <Layout />,
+            children: [
           {index: true, element: <Home />},
           {path: "/alumni", element: <Alumni />},
           {path: "/alumni/create", element: <AddAlumni />},
@@ -77,6 +82,8 @@ const router = createBrowserRouter([
           {path: "/forums", element: <Forums />},
           {path: "/profile", element: <Profile />},
           {path: "/profile/:username", element: <ShowProfile />},
+        ]
+          }
         ]
       },
       {

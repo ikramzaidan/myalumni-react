@@ -1,23 +1,13 @@
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { useEffect } from 'react';
+import { apiGet } from '../api/apiClient';
 
 const Test = () => {
     const { jwtToken } = useOutletContext();
     const navigate = useNavigate();
 
     useEffect( () => {
-
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
-        const requestOptions = {
-            method: "GET",
-            headers: headers,
-        }
-
-        fetch('/claims', requestOptions)
-            .then((response) => response.json())
+        apiGet('/claims')
             .then((data) => {
                 console.log(data)
             })

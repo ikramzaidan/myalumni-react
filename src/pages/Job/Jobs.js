@@ -1,4 +1,5 @@
-import { Link, useOutletContext } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext';
 import { useEffect, useState } from 'react';
 import { PiBriefcaseFill } from "react-icons/pi";
 import { ImSearch } from 'react-icons/im';
@@ -8,9 +9,10 @@ import SelectInput from '../../components/SelectInput';
 import { FaChevronRight, FaChevronUp } from 'react-icons/fa6';
 import { IoAdd } from 'react-icons/io5';
 import DateTimeDisplay from '../../components/DateTimeDisplay';
+import { apiGet, apiPost } from '../../api/apiClient';
 
 const Jobs = () => {
-    const { jwtToken } = useOutletContext();
+    const { jwtToken } = useAuth();
     const [errors, setErrors] = useState([]);
     const [jobs, setJobs] = useState([]);
     const [job, setJob] = useState({});
@@ -23,17 +25,7 @@ const Jobs = () => {
     useEffect( () => {
         if (jwtToken !== "") {
             
-            const headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            headers.append("Authorization", "Bearer " + jwtToken);
-
-            const requestOptions = {
-                method: "GET",
-                headers: headers,
-            }
-
-            fetch(`http://localhost:8080/jobs`, requestOptions)
-                .then((response) => response.json())
+            apiGet(`/jobs`)
                 .then((data) => {
                     setJobs(data);
                     setFilteredJobs(data);
@@ -110,21 +102,9 @@ const Jobs = () => {
             return;
         }
         
-        const headers = new Headers();
-        headers.append("Content-Type", "application/json");
-        headers.append("Authorization", "Bearer " + jwtToken);
-
         const requestBody = job;
 
-        const requestOptions = {
-            body: JSON.stringify(requestBody),
-            method: "POST",
-            headers: headers,
-            credentials: "include",
-        }
-
-        fetch(`http://localhost:8080/jobs/create`, requestOptions)
-            .then((response) => response.json())
+        apiPost(`/jobs/create`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
