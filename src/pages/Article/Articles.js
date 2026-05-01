@@ -63,7 +63,7 @@ const Articles = () => {
                                             <p className="text-sm line-clamp-3 md:line-clamp-2 xl:line-clamp-1 text-justify">{a.body.replace(/<[^>]+>/g, '')}</p>
                                         </div>
                                         <div className="hidden xl:col-span-1 xl:flex items-center xl:justify-center">
-                                            <Link to={`/articles/${a.id}/edit`} className="flex" title="Edit">
+                                            <Link to={`/articles/${a.slug}/edit`} className="flex" title="Edit">
                                                 <TbEdit className="text-xl" />
                                             </Link>
                                         </div>

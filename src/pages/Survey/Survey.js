@@ -7,7 +7,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { apiRequest, apiDelete } from "../../api/apiClient";
 
 const Survey = () => {
-    const { jwtToken, isAdmin } = useAuth();
+    const { isAdmin } = useAuth();
     const { survey } = useOutletContext();
     const { setQuestionUpdated } = useOutletContext();
     const { setNewQuestion } = useOutletContext();
@@ -27,7 +27,7 @@ const Survey = () => {
 
     useEffect(() => {
 
-        if(!isAdmin) {
+        if (!isAdmin) {
             navigate("/");
         }
 
@@ -39,7 +39,7 @@ const Survey = () => {
 
     const handleQuestionChange = () => (event) => {
         const { name, value } = event.target;
-    
+
         if (name.startsWith('question_extension.')) {
             const key = name.split('.')[1];
 
@@ -93,14 +93,14 @@ const Survey = () => {
         } else {
             setQuestionId(null);
             setQuestion({});
-        } 
+        }
     };
 
     // Duplikat question
     const handleQuestionDuplicate = (question) => (event) => {
         event.preventDefault();
 
-        if(question.type === "multiple_choice") {
+        if (question.type === "multiple_choice") {
             setNewQuestion({
                 form_id: question.form_id,
                 question_text: question.question_text,
@@ -114,7 +114,7 @@ const Survey = () => {
                 type: question.type,
             });
         }
-        
+
     };
 
     // Simpan question
@@ -123,7 +123,7 @@ const Survey = () => {
 
         let errors = [];
         let required = [
-            { field: question.question_text, name: "question_text"},
+            { field: question.question_text, name: "question_text" },
         ]
 
         required.forEach(function (obj) {
@@ -181,7 +181,7 @@ const Survey = () => {
             setQuestionExtId(id); // Setel id pertanyaan untuk memulai mode edit
         } else {
             setQuestionExtId(null);
-        } 
+        }
     };
 
     // Tampilkan question
@@ -190,7 +190,7 @@ const Survey = () => {
             setOptionId(oid); // Setel id opsi untuk memulai mode edit
         } else {
             setOptionId(null);
-        } 
+        }
     };
 
     const handleOptionChange = (index, value) => {
@@ -241,7 +241,7 @@ const Survey = () => {
     const formattedOptions = (questionId) => {
         // Temukan pertanyaan dengan id yang sesuai
         const selectedQuestion = survey.questions.find(q => q.id === questionId);
-        
+
         // Jika pertanyaan ditemukan dan memiliki options, ubah formatnya
         if (selectedQuestion && selectedQuestion.options) {
             return selectedQuestion.options.map(option => ({
@@ -249,12 +249,12 @@ const Survey = () => {
                 label: option.option_text
             }));
         }
-    
+
         // Jika tidak ditemukan atau tidak memiliki options, kembalikan array kosong
         return [];
     };
 
-    return(
+    return (
         <>
             {/* <pre>{JSON.stringify(question, null, 3)}</pre> */}
             {survey.questions && survey.questions.map((q) => (
@@ -267,7 +267,7 @@ const Survey = () => {
                                         {questionEditMode ? (
                                             <>
                                                 <input
-                                                    name="question_text" 
+                                                    name="question_text"
                                                     className="w-full text-sm pt-0 px-0 border-0 border-b-2 focus:ring-0"
                                                     value={question.question_text}
                                                     onBlur={() => setQuestionEditMode(false)}
@@ -276,10 +276,10 @@ const Survey = () => {
                                             </>
                                         ) : (
                                             <p className="text-sm" onClick={() => setQuestionEditMode(true)}>{q.question_text}</p>
-                                        ) }
+                                        )}
                                     </div>
                                     <button type="button" className="text-gray-400 self-start" onClick={() => handleQuestionShow(q.id)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6" /></svg>
                                     </button>
                                 </div>
                                 {/* <pre>{JSON.stringify(q, null, 3)}</pre> */}
@@ -292,9 +292,9 @@ const Survey = () => {
                                                         <div>
                                                             <div className="w-4 h-4 border-2 rounded-full border-gray-400"></div>
                                                         </div>
-                                                        <input 
-                                                            type="text" 
-                                                            value={option} 
+                                                        <input
+                                                            type="text"
+                                                            value={option}
                                                             name={`option_${index + 1}`}
                                                             className="w-full text-sm pt-0 pb-1 px-0 border-0 border-b-2 focus:ring-0"
                                                             onChange={(e) => handleOptionChange(index, e.target.value)}
@@ -311,7 +311,7 @@ const Survey = () => {
                                                         </div>
                                                         <p className="text-sm" onClick={() => handleOptionEdit(q.id, index)}>{option}</p>
                                                     </div>
-                                                ) }
+                                                )}
                                             </div>
                                         ))}
                                         <div className="flex items-center gap-2">
@@ -329,14 +329,14 @@ const Survey = () => {
                                             name="type"
                                             className="w-36 text-sm mb-1.5 self-center px-2 py-2 border border-gray-300 rounded-md focus:ring-0 focus:border-gray-400"
                                             defaultValue={question.type}
-                                            options={ [{value: "short_answer", label: "Jawaban Singkat"}, {value: "multiple_choice", label: "Pilihan Ganda"}] }
+                                            options={[{ value: "short_answer", label: "Jawaban Singkat" }, { value: "multiple_choice", label: "Pilihan Ganda" }]}
                                             onChange={handleQuestionChange("type")}
                                             placeHolder={"Pilih tipe pertanyaan"}
                                             marginBottom="mb-0"
                                         />
                                     </div>
                                     <div className="flex gap-1.5">
-                                    <button type="button" className="w-full aspect-square p-1.5 text-base rounded-md hover:bg-gray-300 text-gray-500" onClick={() => handleQuestionExtension(q.id)}  title="Lainnya"><FaEllipsisVertical /></button>
+                                        <button type="button" className="w-full aspect-square p-1.5 text-base rounded-md hover:bg-gray-300 text-gray-500" onClick={() => handleQuestionExtension(q.id)} title="Lainnya"><FaEllipsisVertical /></button>
                                         <button type="button" className="w-full aspect-square p-1.5 text-base rounded-md hover:bg-gray-300 text-gray-500" onClick={handleQuestionDelete(q.id)} title="Hapus"><FaTrash /></button>
                                         <button type="button" className="w-full aspect-square p-1.5 text-base rounded-md hover:bg-gray-300 text-gray-500" onClick={handleQuestionDuplicate(q)} title="Duplikat"><FaCopy /></button>
                                         <button className="text-xs font-semibold py-2 px-3 bg-black hover:bg-gray-500 text-white rounded-md" onClick={handleQuestionSave(q.id)}>Simpan</button>
@@ -351,7 +351,7 @@ const Survey = () => {
                                                 titleClassName="text-gray-500 text-xs font-semibold mb-2"
                                                 name="question_extension.followup_question_id"
                                                 className="w-full text-sm mb-1.5 px-2 py-2 border border-gray-300 rounded-md focus:ring-0 focus:border-gray-400"
-                                                options={ formattedQuestions(q.id) }
+                                                options={formattedQuestions(q.id)}
                                                 defaultValue={q.extension ? q.question_extension.followup_question_id : 0}
                                                 onChange={handleQuestionChange()}
                                                 placeHolder={"Tidak ada"}
@@ -362,13 +362,13 @@ const Survey = () => {
                                                     titleClassName="text-gray-500 text-xs font-semibold mb-2"
                                                     name="question_extension.followup_option_value"
                                                     className="w-full text-sm mb-1.5 px-2 py-2 border border-gray-300 rounded-md focus:ring-0 focus:border-gray-400"
-                                                    options={ formattedOptions(question.question_extension.followup_question_id) }
+                                                    options={formattedOptions(question.question_extension.followup_question_id)}
                                                     defaultValue={q.extension ? q.question_extension.followup_option_value : ""}
                                                     onChange={handleQuestionChange()}
                                                     placeHolder={"Pilih Jawaban"}
                                                 />
                                             ) : ("")}
-                                        </div> 
+                                        </div>
                                     </>
                                 ) : ("")}
                             </div>

@@ -8,6 +8,7 @@ import { apiGet } from '../../api/apiClient';
 const Job = () => {
     const { jwtToken } = useAuth();
     const { profile } = useOutletContext();
+    const { setOpenModalJob } = useOutletContext();
     const [isOwner, setIsOwner] = useState(false);
     const [job, setJob] = useState({});
 
@@ -41,7 +42,7 @@ const Job = () => {
     useEffect(() => {
         apiGet(`/jobs/${id}`)
             .then((data) => {
-                if(data.error === true) {
+                if (data.error === true) {
                     setJob({});
                 } else {
                     setJob(data);
@@ -58,11 +59,11 @@ const Job = () => {
 
     const formatIndonesianDate = (isoDateString) => {
         const date = new Date(isoDateString);
-    
+
         const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
-    
+
         const formattedDate = date.toLocaleDateString('id-ID', optionsDate);
-    
+
         return `${formattedDate}`;
     };
 
@@ -76,19 +77,19 @@ const Job = () => {
                 <h2 className="text-lg font-bold">Loker</h2>
                 {isOwner ? (
                     <>
-                    <button type="button" onClick={() => setDropdown((prev) => !prev)} className={`${dropdown ? "bg-gray-100" : ""} hover:bg-gray-100 p-1 rounded-md text-xl text-black`}><IoEllipsisVertical className="stroke-w-4" /></button>
-                    {dropdown ? (
-                        <div ref={dropdownRef} className="z-10 absolute top-[8rem] right-6 lg:right-8 border bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700" onBlur={() => setDropdown((prev) => !prev)}>
-                            <ul className="py-2 px-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                                <li>
-                                    <button type="button" className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
-                                </li>
-                                <li>
-                                    <button type="button" className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">Delete</button>
-                                </li>
-                            </ul>
-                        </div>
-                    ) : "" }
+                        <button type="button" onClick={() => setDropdown((prev) => !prev)} className={`${dropdown ? "bg-gray-100" : ""} hover:bg-gray-100 p-1 rounded-md text-xl text-black`}><IoEllipsisVertical className="stroke-w-4" /></button>
+                        {dropdown ? (
+                            <div ref={dropdownRef} className="z-10 absolute top-[8rem] right-6 lg:right-8 border bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700" onBlur={() => setDropdown((prev) => !prev)}>
+                                <ul className="py-2 px-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                                    <li>
+                                        <button type="button" className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">Edit</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" onClick={() => setOpenModalJob(true)}>Delete</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        ) : ""}
                     </>
                 ) : ("")}
             </div>

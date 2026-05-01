@@ -6,7 +6,7 @@ import slugify from 'slugify';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from 'ckeditor5-custom-build/build/ckeditor';
 import classNames from 'classnames';
-import { apiGet, apiPut, apiDelete, apiUpload } from '../../api/apiClient';
+import { apiGet, apiDelete, apiUpload, apiPatch } from '../../api/apiClient';
 import { ARTICLES, PROFILE } from '../../api/endpoints';
 
 const EditArticle = () => {
@@ -68,7 +68,7 @@ const EditArticle = () => {
         const requestBody = { ...article, ...articleBody };
 
         try {
-            const data = await apiPut(ARTICLES.UPDATE(id), requestBody);
+            const data = await apiPatch(`/articles/${article.id}`, requestBody);
             if (data.error) {
                 console.log(data.error);
             } else {

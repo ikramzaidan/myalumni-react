@@ -11,7 +11,7 @@
  * - Ready for token rotation/refresh improvements
  */
 
-import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
+import { createContext, useContext, useCallback, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { apiGet, apiPost, setAuthToken, clearAuthToken } from '../api/apiClient';
 import { AUTH } from '../api/endpoints';
@@ -25,6 +25,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [jwtToken, setJwtToken] = useState('');
     const [myUsername, setMyUsername] = useState(null);
+    const [myId, setMyId] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [tickInterval, setTickInterval] = useState(null);
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }) => {
             const decodedJwt = jwtDecode(token);
             setIsAdmin(decodedJwt.adm || false);
             setMyUsername(decodedJwt.name || null);
+            setMyId(decodedJwt.sub || null);
             return decodedJwt;
         } catch (error) {
             console.error('Error decoding JWT:', error);
@@ -62,6 +64,7 @@ export const AuthProvider = ({ children }) => {
         setJwtToken('');
         setMyUsername(null);
         setIsAdmin(false);
+        setMyId(null);
         clearAuthToken();
     }, []);
 
@@ -74,11 +77,11 @@ export const AuthProvider = ({ children }) => {
     const login = useCallback(async (email, password) => {
         try {
             const data = await apiPost(AUTH.LOGIN, { email, password });
-            
+
             if (data.error) {
                 return { error: data.error };
             }
-            
+
             setToken(data.access_token);
             return { success: true };
         } catch (error) {
@@ -95,11 +98,11 @@ export const AuthProvider = ({ children }) => {
     const register = useCallback(async (userData) => {
         try {
             const data = await apiPost(AUTH.REGISTER, userData);
-            
+
             if (data.error) {
                 return { error: data.error };
             }
-            
+
             return { success: true };
         } catch (error) {
             console.error('Register error:', error);
@@ -141,7 +144,7 @@ export const AuthProvider = ({ children }) => {
                     // Could trigger logout here if needed
                 }
             }, 600000);
-            
+
             setTickInterval(interval);
         } else {
             if (tickInterval) {
@@ -195,18 +198,27 @@ export const AuthProvider = ({ children }) => {
         setMyUsername(name);
     }, []);
 
+    /**
+     * Update user id
+     */
+    const setUserId = useCallback((id) => {
+        setMyId(id);
+    }, []);
+
     const value = {
         // State
         jwtToken,
+        myId,
         myUsername,
         isAdmin,
         loading,
-        
+
         // Setters
         setJwtToken: setToken,
         setIsAdmin: setUserAdmin,
         setMyUsername: setUserUsername,
-        
+        setMyId: setUserId,
+
         // Actions
         login,
         register,

@@ -7,6 +7,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Layout from './pages/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ResetPassword from './pages/ResetPassword';
 
 import ErrorPage from './pages/ErrorPage';
 import Loading from './pages/Loading';
@@ -53,36 +54,36 @@ const router = createBrowserRouter([
             path: "/",
             element: <Layout />,
             children: [
-          {index: true, element: <Home />},
-          {path: "/alumni", element: <Alumni />},
-          {path: "/alumni/create", element: <AddAlumni />},
-          {path: "/alumni/import", element: <ImportAlumni />},
-          {path: "/alumni/:id", element: <ShowAlumni />},
-          {path: "/alumni/:id/edit", element: <EditAlumni />},
-          {path: "/articles", element: <Articles />},
-          {path: "/articles/:slug", element: <Article />},
-          {path: "/articles/create", element: <AddArticle />},
-          {path: "/articles/:id/edit", element: <EditArticle />},
-          {path: "/jobs", element: <Jobs />},
-          {path: "/jobs/:id", element: <Job />},
-          {
-            path: "/surveys/:id", 
-            element: <SurveyLayout />,
-            errorElement: <ErrorPage />,
-            children: [
-              {index: true, element: <Survey />},
-              {path: "/surveys/:id/result", element: <SurveyResult />},
-              {path: "/surveys/:id/fill", element: <FillSurvey />},
-              {path: "/surveys/:id/question/:qid/result", element: <SurveyQuestionResult />},
-              {path: "/surveys/:id/setting", element: <SurveySetting />},
-            ],
-          },
-          {path: "/surveys", element: <Surveys />},
-          {path: "/surveys/create", element: <AddSurvey />},
-          {path: "/forums", element: <Forums />},
-          {path: "/profile", element: <Profile />},
-          {path: "/profile/:username", element: <ShowProfile />},
-        ]
+              { index: true, element: <Home /> },
+              { path: "/alumni", element: <Alumni /> },
+              { path: "/alumni/create", element: <AddAlumni /> },
+              { path: "/alumni/import", element: <ImportAlumni /> },
+              { path: "/alumni/:id", element: <ShowAlumni /> },
+              { path: "/alumni/:id/edit", element: <EditAlumni /> },
+              { path: "/articles", element: <Articles /> },
+              { path: "/articles/:slug", element: <Article /> },
+              { path: "/articles/create", element: <AddArticle /> },
+              { path: "/articles/:id/edit", element: <EditArticle /> },
+              { path: "/jobs", element: <Jobs /> },
+              { path: "/jobs/:id", element: <Job /> },
+              {
+                path: "/surveys/:id",
+                element: <SurveyLayout />,
+                errorElement: <ErrorPage />,
+                children: [
+                  { index: true, element: <Survey /> },
+                  { path: "/surveys/:id/result", element: <SurveyResult /> },
+                  { path: "/surveys/:id/fill", element: <FillSurvey /> },
+                  { path: "/surveys/:id/question/:qid/result", element: <SurveyQuestionResult /> },
+                  { path: "/surveys/:id/setting", element: <SurveySetting /> },
+                ],
+              },
+              { path: "/surveys", element: <Surveys /> },
+              { path: "/surveys/create", element: <AddSurvey /> },
+              { path: "/forums", element: <Forums /> },
+              { path: "/profile", element: <Profile /> },
+              { path: "/profile/:username", element: <ShowProfile /> },
+            ]
           }
         ]
       },
@@ -94,7 +95,11 @@ const router = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
-      {path: "/loading", element: <Loading />},
+      {
+        path: "/reset_password",
+        element: <ResetPassword />,
+      },
+      { path: "/loading", element: <Loading /> },
     ]
   }
 ]);

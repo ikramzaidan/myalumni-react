@@ -74,7 +74,7 @@ const AddSurvey = () => {
 
         const requestBody = survey;
 
-        apiPost(`/forms/create`, requestBody)
+        apiPost(`/forms`, requestBody)
             .then((data) => {
                 if (data.error) {
                     setAlertMessage(`Terjadi kesalahan: ${data.error}`);

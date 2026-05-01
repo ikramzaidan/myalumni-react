@@ -11,7 +11,7 @@ const Surveys = () => {
     const [answers, setAnswers] = useState([]);
     const filledSurveyIds = new Set((answers || []).map(answer => answer.form_id));
 
-    useEffect( () => {
+    useEffect(() => {
         if (jwtToken !== "") {
             apiGet('/forms')
                 .then((data) => {
@@ -39,9 +39,9 @@ const Surveys = () => {
             {/* <pre>{JSON.stringify(answers, null, 3)}</pre> */}
             <div className="flex justify-between items-center w-full mb-5">
                 <h2 className="text-xl sm:text-lg font-bold">Survei</h2>
-                { isAdmin ? (
+                {isAdmin ? (
                     <Link to="/surveys/create" className="bg-white hover:bg-gray-50 border p-1.5 rounded-md text-xl text-black shadow-md" title="Buat Survei Baru"><IoAdd className="stroke-w-4" /></Link>
-                ) : ("") }
+                ) : ("")}
             </div>
             <div className="flex flex-col gap-3">
                 {!surveys || surveys.length === 0 ? (
@@ -51,54 +51,54 @@ const Surveys = () => {
                     </div>
                 ) : (
                     <>
-                    { !isAdmin ? (
-                        <>
-                        {surveys.map((a) => (
-                            <div key={a.id}>
-                                {filledSurveyIds.has(a.id) ? (
-                                    <div className="border rounded-xl shadow-md p-4">
-                                        <div className="flex justify-between items-center gap-3">
-                                            <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-1">
-                                                    <h3 className="text-lg font-bold line-clamp-1">{a.title}</h3>
-                                                    <div className="text-lg text-green-400"><IoCheckbox title="Jawaban terkirim" /></div>
+                        {!isAdmin ? (
+                            <>
+                                {surveys.filter(s => s.hidden === false).map((s) => (
+                                    <div key={s.id}>
+                                        {filledSurveyIds.has(s.id) ? (
+                                            <div className="border rounded-xl shadow-md p-4">
+                                                <div className="flex justify-between items-center gap-3">
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex items-center gap-1">
+                                                            <h3 className="text-lg font-bold line-clamp-1">{s.title}</h3>
+                                                            <div className="text-lg text-green-400"><IoCheckbox title="Jawaban terkirim" /></div>
+                                                        </div>
+                                                        <p className="font-light line-clamp-2">{s.description}</p>
+                                                    </div>
                                                 </div>
-                                                <p className="font-light line-clamp-2">{a.description}</p>
                                             </div>
-                                        </div>
+                                        ) : (
+                                            <Link to={`/surveys/${s.id}/fill`}>
+                                                <div className="border rounded-xl shadow-md p-4">
+                                                    <div className="flex justify-between items-center gap-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <h3 className="text-lg font-bold line-clamp-1">{s.title}</h3>
+                                                            <p className="font-light line-clamp-2">{s.description}</p>
+                                                        </div>
+                                                        <IoIosArrowForward className="text-xl text-gray-400 stroke-w-2" title="Edit" />
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        )}
                                     </div>
-                                ) : (
-                                    <Link to={`/surveys/${a.id}/fill`}>
-                                        <div className="border rounded-xl shadow-md p-4">
-                                            <div className="flex justify-between items-center gap-3">
-                                                <div className="flex flex-col gap-1">
-                                                    <h3 className="text-lg font-bold line-clamp-1">{a.title}</h3>
-                                                    <p className="font-light line-clamp-2">{a.description}</p>
-                                                </div>
-                                                <IoIosArrowForward className="text-xl text-gray-400 stroke-w-2" title="Edit" />
-                                            </div>
+                                ))}
+                            </>
+                        ) : (
+                            <>
+                                {surveys.map((s) => (
+                                    <div key={s.id} className="border rounded-xl shadow-md p-4">
+                                        <div className="flex justify-between items-center">
+                                            <Link to={`/surveys/${s.id}`}><h3 className="text-lg font-semibold line-clamp-1">{s.title}</h3></Link>
+                                            <Link to={`/surveys/${s.id}`}><IoIosArrowForward className="text-xl text-gray-400" title="Edit" /></Link>
                                         </div>
-                                    </Link>
-                                )}
-                            </div>
-                        ))}
-                        </>
-                    ) : (
-                        <>
-                        {surveys.map((a) => (
-                        <div key={a.id} className="border rounded-xl shadow-md p-4">
-                            <div className="flex justify-between items-center">
-                                <Link to={`/surveys/${a.id}`}><h3 className="text-lg font-semibold line-clamp-1">{a.title}</h3></Link>
-                                <Link to={`/surveys/${a.id}`}><IoIosArrowForward className="text-xl text-gray-400" title="Edit" /></Link>
-                            </div>
-                        </div>))}
-                        </>
-                    ) }
+                                    </div>))}
+                            </>
+                        )}
                     </>
                 )}
-                
+
             </div>
-            
+
         </>
     );
 }

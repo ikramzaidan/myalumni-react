@@ -47,3 +47,7 @@ export const LIKES = {
 export const SURVEYS = {
     GET: (id) => `/forms/${id}`
 };
+
+export const JOBS = {
+    GET: (id) => `/jobs/${id}`
+};

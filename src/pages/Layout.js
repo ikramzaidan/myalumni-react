@@ -3,13 +3,14 @@ import ProfileBar from "../components/ProfileBar";
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { IoBriefcase, IoChatbubbles, IoChevronBackOutline, IoDocumentText, IoHome, IoNewspaper, IoPeople, IoClose } from "react-icons/io5";
 import { apiGet, apiDelete } from "../api/apiClient";
-import { PROFILE, SURVEYS, FORUMS } from "../api/endpoints";
+import { PROFILE, SURVEYS, FORUMS, JOBS } from "../api/endpoints";
 import { useAuth } from "../auth/AuthContext";
 
 const Layout = () => {
     const [openSide, setOpenSide] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [openModalForum, setOpenModalForum] = useState(false);
+    const [openModalJob, setOpenModalJob] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
     const [deleteForumId, setDeleteForumId] = useState(null);
 
@@ -41,6 +42,10 @@ const Layout = () => {
         setOpenModalForum(false);
     }
 
+    const handleCloseModalJob = () => {
+        setOpenModalJob(false);
+    }
+
     const handleCloseAlert = () => {
         setAlertMessage("");
     }
@@ -61,6 +66,16 @@ const Layout = () => {
             setOpenModalForum(false);
 
             navigate("/forums");
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    const handleDeleteJob = async () => {
+        try {
+            await apiDelete(JOBS.GET(id));
+            navigate("/jobs");
+            setOpenModalJob(false);
         } catch (err) {
             console.log(err);
         }
@@ -162,7 +177,7 @@ const Layout = () => {
 
                         {/* Main Content */}
                         <div className="py-5 px-6 sm:px-8">
-                            <Outlet context={{ setOpenModal, setOpenModalForum, setDeleteForumId, profile, setAlertMessage }} />
+                            <Outlet context={{ setOpenModal, setOpenModalForum, setOpenModalJob, setDeleteForumId, profile, setAlertMessage }} />
                         </div>
 
                     </div>
@@ -235,6 +250,38 @@ const Layout = () => {
                                 <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
                                     <button onClick={handleDeleteForum} type="button" className="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ya</button>
                                     <button onClick={handleCloseModalForum} type="button" className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Batal</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            ) : ("")
+            }
+            {openModalJob ? (
+                <>
+                    <div className="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 w-full h-full bg-black opacity-80 z-10"></div>
+                    <div className="fixed top-0 right-0 left-0 z-20 flex justify-center items-center w-full h-full">
+                        <div className="relative p-4 w-full max-w-2xl max-h-full">
+                            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                        Hapus Lowongan Pekerjaan
+                                    </h3>
+                                    <button type="button" className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" onClick={handleCloseModalJob}>
+                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span className="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <div className="p-4 md:p-5 space-y-4">
+                                    <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+                                        Apakah kamu yakin ingin menghapus lowongan pekerjaan ini? Tindakan ini bersifat permanen dan tidak dapat dikembalikan.
+                                    </p>
+                                </div>
+                                <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                                    <button onClick={handleDeleteJob} type="button" className="text-white bg-red-500 hover:bg-red-400 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Ya</button>
+                                    <button onClick={handleCloseModalJob} type="button" className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Batal</button>
                                 </div>
                             </div>
                         </div>

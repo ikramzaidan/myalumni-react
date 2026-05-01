@@ -1,60 +1,33 @@
 import { useEffect, useState } from 'react';
-import Input from './../components/Input';
+import Input from '../components/Input';
 import Background from './../images/bg.jpg';
 import TSLogo from './../images/ts-logo.png';
 import Image from './../images/bg-2.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
-const Login = () => {
+const ResetPassword = () => {
     const { jwtToken, login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();
-
-    const hasError = (key) => {
-        return errors.indexOf(key) !== -1;
-    }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setIsLoading(true);
         setError(false);
 
-        let errors = [];
-        let required = [
-            { field: email, name: "email" },
-            { field: password, name: "password" },
-        ]
+        const result = await login(email, password);
 
-        required.forEach(function (obj) {
-            if (obj.field === "") {
-                errors.push(obj.name);
-            }
-        })
+        setIsLoading(false);
 
-        setErrors(errors);
-
-        if (errors.length > 0) {
-            setIsLoading(false);
-            return false;
-        }
-
-        try {
-            const result = await login(email, password);
-
-            if (result.error) {
-                setError(true);
-                setIsLoading(false);
-            } else {
-                navigate("/");
-            }
-        } catch (err) {
-            console.log(err);
+        if (result.error) {
+            setError(true);
+        } else {
+            navigate("/");
         }
     }
 
@@ -87,9 +60,9 @@ const Login = () => {
                     </div>
                     <div className="flex justify-center xl:px-12 w-full lg:min-w-[450px] xl:min-w-[525px]">
                         <div className="flex flex-col w-full bg-white shadow-lg shadow-black py-8 px-10 border-2 border-black">
-                            <h2 className="text-2xl font-extrabold mb-4">Login</h2>
+                            <h2 className="text-2xl font-extrabold mb-4">Reset Password</h2>
                             <form onSubmit={handleSubmit} className="mb-5">
-                                <Input
+                                {/* <Input
                                     title="Email"
                                     type="text"
                                     name="email"
@@ -97,31 +70,27 @@ const Login = () => {
                                     onChange={(event) => setEmail(event.target.value)}
                                     className="w-64 lg:w-full px-3 py-2 border-2 border-black focus:border-blue-300 focus:ring-blue-300"
                                     autoComplete="email"
-                                    errorMsg={hasError("email") ? "Please enter your email" : ""}
-                                ></Input>
+                                ></Input> */}
                                 <Input
-                                    title="Password"
-                                    type="password"
-                                    name="password"
-                                    placeHolder="Password"
-                                    marginBottom="mb-1"
-                                    onChange={(event) => setPassword(event.target.value)}
+                                    title="Email"
+                                    type="text"
+                                    name="email"
+                                    placeHolder="Email"
+                                    onChange={(event) => setEmail(event.target.value)}
                                     className="w-64 lg:w-full px-3 py-2 border-2 border-black focus:border-blue-300 focus:ring-blue-300 mb-0"
-                                    errorMsg={hasError("password") ? "Please enter your password" : ""}
                                 ></Input>
                                 <div className={`mb-3 text-sm font-medium text-red-500 dark:text-red-400 ${!error ? "invisible" : ""}`} role="alert">
-                                    Email atau password salah.
+                                    Email harus diisi.
                                 </div>
                                 <button
                                     type="submit"
                                     className="text-white text-sm text-center py-3 px-7 bg-black font-bold hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:bg-gray-400"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Loading...' : 'Login'}
+                                    {isLoading ? 'Loading...' : 'Kirim'}
                                 </button>
                             </form>
-                            <div className="text-sm">Belum punya akun? <Link to="/register" className="font-semibold text-red-500 hover:underline">Daftar</Link></div>
-                            <div className="text-sm mt-1">Lupa password? <Link to="/reset_password" className="font-semibold text-red-500 hover:underline">Reset Password</Link></div>
+                            <div className="text-sm">Sudah punya akun? <Link to="/login" className="font-semibold text-red-500 hover:underline">Login</Link></div>
                         </div>
                     </div>
                 </div>
@@ -131,4 +100,4 @@ const Login = () => {
 
 }
 
-export default Login;
+export default ResetPassword;

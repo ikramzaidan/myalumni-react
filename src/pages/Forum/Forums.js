@@ -9,7 +9,7 @@ import { ImSearch } from "react-icons/im";
 import { apiGet, apiPost } from "../../api/apiClient";
 
 const Forums = () => {
-    const { jwtToken } = useAuth();
+    const { jwtToken, myUsername } = useAuth();
     const [forums, setForums] = useState([]);
     const [forum, setForum] = useState({});
     const [likes, setLikes] = useState([]);
@@ -90,7 +90,7 @@ const Forums = () => {
 
         const requestBody = forum;
 
-        apiPost(`/forums/create`, requestBody)
+        apiPost(`/forums`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);
@@ -234,9 +234,11 @@ const Forums = () => {
                                                 <div className="text-gray-500 text-xs font-normal"><DateTimeDisplay dateTimeStr={q.published_at} /></div>
                                             </div>
                                         </div>
-                                        <button className="bg-white hover:bg-gray-50 p-1 rounded-md text-xl text-black">
-                                            <HiDotsHorizontal size={21} className="text-gray-500" onClick={() => { setDeleteForumId(q.id); setOpenModalForum(true); }} />
-                                        </button>
+                                        {q.user_username === myUsername && (
+                                            <button className="bg-white hover:bg-gray-50 p-1 rounded-md text-xl text-black">
+                                                <HiDotsHorizontal size={21} className="text-gray-500" onClick={() => { setDeleteForumId(q.id); setOpenModalForum(true); }} />
+                                            </button>
+                                        )}
                                     </div>
                                     <p>{q.forum_text}</p>
                                     <div className="w-full border mt-3"></div>

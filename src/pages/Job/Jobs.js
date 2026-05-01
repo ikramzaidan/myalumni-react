@@ -22,9 +22,9 @@ const Jobs = () => {
     const [filteredJobs, setFilteredJobs] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect( () => {
+    useEffect(() => {
         if (jwtToken !== "") {
-            
+
             apiGet(`/jobs`)
                 .then((data) => {
                     setJobs(data);
@@ -48,7 +48,7 @@ const Jobs = () => {
         const filtered = jobs.filter(job => {
             const jobPosition = job.job_position ? job.job_position.toLowerCase() : ''; // Pastikan ada nilai sebelum melakukan toLowerCase()
             const company = job.company ? job.company.toLowerCase() : ''; // Pastikan ada nilai sebelum melakukan toLowerCase()
-    
+
             return jobPosition.includes(term.toLowerCase()) || company.includes(term.toLowerCase());
         });
         setFilteredJobs(filtered);
@@ -61,12 +61,12 @@ const Jobs = () => {
     const handleChange = () => (event) => {
         const { name, value } = event.target;
 
-        if(name === "min_salary" || name === "max_salary") {
+        if (name === "min_salary" || name === "max_salary") {
             setJob(prevState => ({
                 ...prevState,
                 [name]: parseInt(value, 10),
             }));
-        } else if(name === "view_salary") {
+        } else if (name === "view_salary") {
             if (value === "false") {
                 setJob(prevState => ({
                     ...prevState,
@@ -101,7 +101,7 @@ const Jobs = () => {
             setErrors(newErrors);
             return;
         }
-        
+
         const requestBody = job;
 
         apiPost(`/jobs/create`, requestBody)
@@ -117,7 +117,7 @@ const Jobs = () => {
             .catch(err => {
                 console.log(err);
             })
-        
+
     }
 
     return (
@@ -134,7 +134,7 @@ const Jobs = () => {
                             <div className="flex w-full justify-end mb-1">
                                 <button type="button" onClick={() => setJobCreateMode(false)}><FaChevronUp className="text-sm" /></button>
                             </div>
-                            <Input 
+                            <Input
                                 name="job_position"
                                 className="w-full border border-gray-400 p-2 focus:ring-0 focus:border-red-400 rounded-md"
                                 placeHolder="Posisi Pekerjaan"
@@ -143,7 +143,7 @@ const Jobs = () => {
                                 value={job.job_position || ""}
                                 errorMsg={hasError("job_position") ? "Please enter this section" : ""}
                             />
-                            <Input 
+                            <Input
                                 name="company"
                                 className="w-full border border-gray-400 p-2 focus:ring-0 focus:border-red-400 rounded-md"
                                 placeHolder="Nama Perusahaan"
@@ -152,7 +152,7 @@ const Jobs = () => {
                                 value={job.company || ""}
                                 errorMsg={hasError("company") ? "Please enter this section" : ""}
                             />
-                            <Input 
+                            <Input
                                 name="job_location"
                                 className="w-full border border-gray-400 p-2 focus:ring-0 focus:border-red-400 rounded-md"
                                 placeHolder="Lokasi"
@@ -165,7 +165,7 @@ const Jobs = () => {
                                 name="job_type"
                                 className="w-full border border-gray-400 p-2 focus:ring-0 focus:border-red-400 rounded-md"
                                 defaultValue={job.type || ""}
-                                options={ [{value: "Full time", label: "Full time"}, {value: "Part time", label: "Part time"}] }
+                                options={[{ value: "Full time", label: "Full time" }, { value: "Part time", label: "Part time" }]}
                                 onChange={handleChange()}
                                 placeHolder={"Pilih jenis pekerjaan"}
                                 marginBottom="mb-1"
@@ -175,14 +175,14 @@ const Jobs = () => {
                                 name="view_salary"
                                 className="w-full border border-gray-400 p-2 focus:ring-0 focus:border-red-400 rounded-md"
                                 defaultValue={"true"}
-                                options={ [{value: "true", label: "Tampilkan Gaji"}, {value: "false", label: "Jangan Tampilkan Gaji"}] }
+                                options={[{ value: "true", label: "Tampilkan Gaji" }, { value: "false", label: "Jangan Tampilkan Gaji" }]}
                                 onChange={handleChange()}
                                 placeHolder="Opsi gaji"
                                 marginBottom="mb-1"
                             />
                             {viewSalary ? (
                                 <div className="flex gap-2 mt-2 mb-1">
-                                    <input 
+                                    <input
                                         id="min"
                                         name="min_salary"
                                         type="number"
@@ -191,7 +191,7 @@ const Jobs = () => {
                                         onChange={handleChange()}
                                         value={job.min_salary || ""}
                                     />
-                                    <input 
+                                    <input
                                         id="max"
                                         name="max_salary"
                                         type="number"
@@ -202,7 +202,7 @@ const Jobs = () => {
                                     />
                                 </div>
                             ) : ("")}
-                            <TextArea 
+                            <TextArea
                                 name="description"
                                 className="w-full border border-gray-400 resize-none overflow-hidden p-2 focus:ring-0 focus:border-red-400"
                                 placeHolder="Deskripsi"
@@ -227,21 +227,21 @@ const Jobs = () => {
                         </div>
                     ) : (
                         <>
-                        {filteredJobs.map((j) => (
-                            <div className="flex flex-col border shadow rounded-xl bg-white p-4 font-normal" key={j.id}>
-                                <div className="flex items-center">
-                                    <div className="w-full flex flex-col">
-                                        <Link to={`/jobs/${j.id}`} className="font-semibold">{j.job_position}</Link>
-                                        <div className="mb-3">{j.company}</div>
-                                        <div className="text-xs text-gray-400 font-medium"><DateTimeDisplay dateTimeStr={j.created_at} /></div>
+                            {filteredJobs.map((j) => (
+                                <div className="flex flex-col border shadow rounded-xl bg-white p-4 font-normal" key={j.id}>
+                                    <div className="flex items-center">
+                                        <div className="w-full flex flex-col">
+                                            <Link to={`/jobs/${j.id}`} className="font-semibold">{j.job_position}</Link>
+                                            <div className="mb-3">{j.company}</div>
+                                            <div className="text-xs text-gray-400 font-medium"><DateTimeDisplay dateTimeStr={j.created_at} /></div>
+                                        </div>
+                                        <Link to={`/jobs/${j.id}`}>
+                                            <FaChevronRight />
+                                        </Link>
                                     </div>
-                                    <Link to={`/jobs/${j.id}`}>
-                                        <FaChevronRight />
-                                    </Link>
+                                    <div className="w-full border mt-3"></div>
                                 </div>
-                                <div className="w-full border mt-3"></div>                                
-                            </div>
-                        ))}
+                            ))}
                         </>
                     )}
                 </div>
@@ -252,7 +252,7 @@ const Jobs = () => {
                             <input id="search" type="text" className="border-0 text-sm focus:border-0 focus:ring-0" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
                         </div>
                     </form>
-                    <div className="w-full border rounded-md p-4">
+                    {/* <div className="w-full border rounded-md p-4">
                         <div className="text-sm text-black font-semibold mb-1">Filter</div>
                         <div className="w-full border-0 border-b mb-3"></div>
                         <div className="flex flex-col gap-2">
@@ -266,7 +266,7 @@ const Jobs = () => {
                                 <label className="text-sm">Alumni</label>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </>

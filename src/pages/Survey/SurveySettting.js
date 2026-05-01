@@ -22,7 +22,7 @@ const SurveySetting = () => {
 
     useEffect(() => {
 
-        if(!isAdmin) {
+        if (!isAdmin) {
             navigate("/");
         }
 
@@ -34,33 +34,15 @@ const SurveySetting = () => {
 
     const handleSwitch = (name) => () => {
         if (name === "visibility") {
-            if (isSwitched && survey.hidden === "true") {
-                setSurvey({
-                    ...survey,
-                    hidden: "false"
-                });
-                setIsSwithed(false);
-            } else {
-                setSurvey({
-                    ...survey,
-                    hidden: "true"
-                });
-                setIsSwithed(true);
-            }
+            setSurvey({
+                ...survey,
+                hidden: survey.hidden === true ? false : true
+            });
         } else {
-            if (isSwitched2 && survey.has_time_limit === "true") {
-                setSurvey({
-                    ...survey,
-                    has_time_limit: "false"
-                });
-                setIsSwithed2(false);
-            } else {
-                setSurvey({
-                    ...survey,
-                    has_time_limit: "true"
-                });
-                setIsSwithed2(true);
-            }
+            setSurvey({
+                ...survey,
+                has_time_limit: survey.has_time_limit === true ? false : true
+            });
         }
     };
 
@@ -83,12 +65,12 @@ const SurveySetting = () => {
 
         let errors = [];
         let required = [
-            { field: survey.title, name: "title"},
-            { field: survey.description, name: "description"},
-            { field: survey.has_time_limit, name: "has_time_limit"},
-            { field: survey.hidden, name: "hidden"},
-            { field: survey.start_date, name: "start_date"},
-            { field: survey.end_date, name: "end_date"},
+            { field: survey.title, name: "title" },
+            { field: survey.description, name: "description" },
+            { field: survey.has_time_limit, name: "has_time_limit" },
+            { field: survey.hidden, name: "hidden" },
+            { field: survey.start_date, name: "start_date" },
+            { field: survey.end_date, name: "end_date" },
         ]
 
         required.forEach(function (obj) {
@@ -127,7 +109,7 @@ const SurveySetting = () => {
         return `${dateTimeString}:00Z`;
     }
 
-    return(
+    return (
         <>
             {survey && Object.keys(survey).length !== 0 ? (
                 <div className="w-full border rounded-xl shadow-md p-5">
@@ -140,14 +122,14 @@ const SurveySetting = () => {
                                 <div className="text-gray-400 text-sm font-light">Ubah visibilitas survei untuk menyembunyikan survei dari orang-orang.</div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <label className="font-semibold hidden lg:block">{survey.hidden === "false" ? "Terlihat" : "Disembunyikan"}</label>
+                                <label className="font-semibold hidden lg:block">{survey.hidden === false ? "Terlihat" : "Disembunyikan"}</label>
                                 <div onClick={handleSwitch("visibility")}
                                     className={classNames("flex h-6 w-12 rounded-full outline-none p-[0.1rem] transition-all duration-300 cursor-pointer", {
-                                        "bg-red-400": isSwitched,
-                                        "bg-gray-200": !isSwitched
+                                        "bg-red-400": survey.hidden !== false,
+                                        "bg-gray-200": survey.hidden === false
                                     })}>
                                     <span className={classNames("h-full aspect-square rounded-full bg-white transition-all duration-300", {
-                                        "ml-6": isSwitched
+                                        "ml-6": survey.hidden !== false
                                     })}></span>
                                 </div>
                             </div>
@@ -170,7 +152,7 @@ const SurveySetting = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className={`flex-col gap-3 ` + (survey.has_time_limit === "true" ? "flex" : "hidden" )}>
+                        <div className={`flex-col gap-3 ` + (survey.has_time_limit === "true" ? "flex" : "hidden")}>
                             <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center">
                                 <div className="mb-2 lg:mb-0">
                                     <label>Waktu mulai</label>
@@ -239,14 +221,14 @@ const SurveySetting = () => {
                                     />
                                 </div>
                             </div>
-                        </div> 
+                        </div>
                     </div>
                     <div className="flex justify-end">
                         <button onClick={handleSubmit} className="py-2 px-5 bg-red-500 hover:bg-red-400 text-white text-sm font-medium rounded-md">Simpan</button>
                     </div>
                 </div>
             ) : ("")}
-            
+
         </>
     );
 }

@@ -72,18 +72,18 @@ const SurveyLayout = () => {
         if (Object.keys(newQuestion).length !== 0) {
             const requestBody = newQuestion;
 
-            apiPost('/questions/create', requestBody)
-            .then((data) => {
-                if (data.error) {
-                    console.log(data.error);
-                } else {
-                    setQuestionCreated(true);
-                    setNewQuestion({});
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            })
+            apiPost('/questions', requestBody)
+                .then((data) => {
+                    if (data.error) {
+                        console.log(data.error);
+                    } else {
+                        setQuestionCreated(true);
+                        setNewQuestion({});
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                })
         }
 
     }, [id, jwtToken, newQuestion]);
@@ -92,7 +92,7 @@ const SurveyLayout = () => {
         const pathParts = url.pathname.split('/');
 
         let result;
-    
+
         if (pathParts.length >= 4 && pathParts[3] === 'result') {
             result = "result";
         } else if (pathParts.length >= 6 && pathParts[5] === 'result') {
@@ -104,7 +104,7 @@ const SurveyLayout = () => {
         } else {
             result = "";
         }
-    
+
         return result;
     }
 
@@ -127,8 +127,8 @@ const SurveyLayout = () => {
 
         let errors = [];
         let required = [
-            { field: survey.title, name: "title"},
-            { field: survey.description, name: "description"},
+            { field: survey.title, name: "title" },
+            { field: survey.description, name: "description" },
         ]
 
         required.forEach(function (obj) {
@@ -196,40 +196,40 @@ const SurveyLayout = () => {
             <div className="flex justify-between items-center w-full mb-5">
                 <h2 className="text-lg font-bold">Survei</h2>
                 {isAdmin ? (
-                <div className="flex gap-2">
-                    <button type="button" onClick={() => setQuestionCreateMode((prev) => !prev)} className={`bg-white hover:bg-gray-50 border p-1 rounded-md text-xl text-black shadow-md ${getPath(location) !== "" ? "hidden" : ""}`} title="Tambah Pertanyaan"><IoAdd className="stroke-w-4"/></button>
-                    <button type="button" onClick={() => setDropdown((prev) => !prev)} className="bg-white hover:bg-gray-50 border p-1 rounded-md text-xl text-black shadow-md"><IoEllipsisHorizontal className="stroke-w-4" /></button>
-                    {dropdown ? (
-                        <div ref={dropdownRef} className="z-10 absolute top-[8.5rem] right-6 lg:right-8 border bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700" onBlur={() => setDropdown((prev) => !prev)}>
-                            <ul className="py-2 px-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
-                                <li>
-                                    <button type="button" onClick={() => setSurveyEditMode((prev) => !prev)} className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">{surveyEditMode ? "Nonaktifkan Mode Edit" : "Aktifkan Mode Edit"}</button>
-                                </li>
-                                <li>
-                                    <button type="button" className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" onClick={() => setOpenModal(true)}>Hapus Survei</button>
-                                </li>
-                            </ul>
-                        </div>
-                    ) : "" }
-                </div>
+                    <div className="flex gap-2">
+                        <button type="button" onClick={() => setQuestionCreateMode((prev) => !prev)} className={`bg-white hover:bg-gray-50 border p-1 rounded-md text-xl text-black shadow-md ${getPath(location) !== "" ? "hidden" : ""}`} title="Tambah Pertanyaan"><IoAdd className="stroke-w-4" /></button>
+                        <button type="button" onClick={() => setDropdown((prev) => !prev)} className="bg-white hover:bg-gray-50 border p-1 rounded-md text-xl text-black shadow-md"><IoEllipsisHorizontal className="stroke-w-4" /></button>
+                        {dropdown ? (
+                            <div ref={dropdownRef} className="z-10 absolute top-[8.5rem] right-6 lg:right-8 border bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700" onBlur={() => setDropdown((prev) => !prev)}>
+                                <ul className="py-2 px-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                                    <li>
+                                        <button type="button" onClick={() => setSurveyEditMode((prev) => !prev)} className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white">{surveyEditMode ? "Nonaktifkan Mode Edit" : "Aktifkan Mode Edit"}</button>
+                                    </li>
+                                    <li>
+                                        <button type="button" className="w-full text-start block px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" onClick={() => setOpenModal(true)}>Hapus Survei</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        ) : ""}
+                    </div>
                 ) : ("")}
             </div>
             <div className="flex flex-col gap-4">
-            <div className="border rounded-xl shadow-md">
-                <div className="w-full rounded-t-xl bg-gray-400 p-5"></div>
+                <div className="border rounded-xl shadow-md">
+                    <div className="w-full rounded-t-xl bg-gray-400 p-5"></div>
                     <div className="flex flex-col p-5">
                         {/* <pre>{JSON.stringify(survey, null, 3)}</pre> */}
                         {surveyEditMode ? (
                             <form onSubmit={handleSurveySave} className="flex flex-col">
-                                <Input 
-                                    type="text" 
-                                    name="title" 
-                                    className="text-xl font-bold mt-10 mb-2 px-0 border-0 border-b-2 focus:ring-0" 
-                                    value={ survey.title } 
+                                <Input
+                                    type="text"
+                                    name="title"
+                                    className="text-xl font-bold mt-10 mb-2 px-0 border-0 border-b-2 focus:ring-0"
+                                    value={survey.title}
                                     onChange={handleChange("title")}
                                     errorMsg={hasError("title") ? "Please enter a title" : ""}
                                 />
-                                <textarea 
+                                <textarea
                                     name="description"
                                     className="text-sm px-0 border-0 border-b-2 focus:ring-0"
                                     value={survey.description}
@@ -240,13 +240,13 @@ const SurveyLayout = () => {
                         ) : (
                             <div className="flex flex-row justify-between  mt-10 items-end">
                                 <div className="flex flex-col">
-                                    <h3 className="text-xl font-bold mb-2 px-0">{ survey.title }</h3>
+                                    <h3 className="text-xl font-bold mb-2 px-0">{survey.title}</h3>
                                     <p className="text-sm px-0">{survey.description}</p>
                                 </div>
                                 <div className={`${getPath(location) === "result" ? "" : "hidden"} flex items-center gap-1 py-2 px-3 bg-gray-400 hover:bg-gray-300 text-white text-sm font-medium rounded-md cursor-pointer`} onClick={handleExportSurvey}><FaDownload />Ekspor</div>
                             </div>
-                        ) }
-                        
+                        )}
+
                     </div>
                 </div>
                 {isAdmin ? (
