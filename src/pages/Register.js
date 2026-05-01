@@ -8,7 +8,6 @@ import { apiPost } from '../api/apiClient';
 import { AUTH } from '../api/endpoints';
 
 const Register = () => {
-    // const { jwtToken } = useOutletContext();
     const [alumni, setAlumni] = useState({});
     const [nisn, setNisn] = useState("");
     const [email, setEmail] = useState("");
@@ -23,25 +22,25 @@ const Register = () => {
 
     const addError = (errorType, errorMsg) => {
         setErrors((prevErrors) => {
-          // Cek apakah errorType sudah ada dalam prevErrors
-          const errorIndex = prevErrors.findIndex((error) => error.errorType === errorType);
-      
-          if (errorIndex === -1) {
-            // Jika errorType belum ada, tambahkan pesan error baru
-            return [...prevErrors, { errorType, errorMsg }];
-          } else {
-            // Jika errorType sudah ada, perbarui pesan error yang ada
-            return prevErrors.map((error, index) =>
-              index === errorIndex ? { ...error, errorMsg } : error
-            );
-          }
+            // Cek apakah errorType sudah ada dalam prevErrors
+            const errorIndex = prevErrors.findIndex((error) => error.errorType === errorType);
+
+            if (errorIndex === -1) {
+                // Jika errorType belum ada, tambahkan pesan error baru
+                return [...prevErrors, { errorType, errorMsg }];
+            } else {
+                // Jika errorType sudah ada, perbarui pesan error yang ada
+                return prevErrors.map((error, index) =>
+                    index === errorIndex ? { ...error, errorMsg } : error
+                );
+            }
         });
     };
 
     const deleteError = (errorType) => {
         // Filter errors untuk menyimpan semua error kecuali yang memiliki tipe yang sesuai dengan errorType yang diberikan
         const updatedErrors = errors.filter((error) => error.errorType !== errorType);
-      
+
         // Perbarui state errors dengan updatedErrors
         setErrors(updatedErrors);
     };
@@ -49,7 +48,7 @@ const Register = () => {
     const handleErrorMsg = (errorType) => {
         // Cari error dengan tipe yang sesuai dalam state errors
         const error = errors.find((error) => error.errorType === errorType);
-        
+
         // Jika error ditemukan, kembalikan pesan kesalahan, jika tidak, kembalikan string kosong
         return error ? error.errorMsg : "";
     };
@@ -67,13 +66,13 @@ const Register = () => {
             setIsLoading(true);
             try {
                 const data = await apiPost(AUTH.REGISTER_CHECK, payload);
-                
-                if(data.error) {
+
+                if (data.error) {
                     addError("nisn", data.message);
                 } else {
                     deleteError("nisn");
                     setAlumni(data);
-                    setStep(2);     
+                    setStep(2);
                 }
             } catch (err) {
                 console.log(err);
@@ -85,7 +84,7 @@ const Register = () => {
 
     const handleSecondSubmit = (event) => {
         event.preventDefault();
-        setStep(3);  
+        setStep(3);
     }
 
     const handleThirdSubmit = async (event) => {
@@ -102,15 +101,15 @@ const Register = () => {
             setIsLoading(true);
             try {
                 const data = await apiPost(AUTH.REGISTER, payload);
-                
-                if(data.error) {
+
+                if (data.error) {
                     if (data.message === "all fields are required") {
-                        addError("email", "Please enter a field"); 
-                        addError("username", "Please enter a field"); 
+                        addError("email", "Please enter a field");
+                        addError("username", "Please enter a field");
                         addError("password", "Please enter a field");
                     }
                 } else {
-                    navigate("/login");          
+                    navigate("/login");
                 }
             } catch (err) {
                 console.log(err);
@@ -130,7 +129,7 @@ const Register = () => {
             setEmail("");
             setUsername("");
         }
-        
+
         setErrors([]);
     }
 
@@ -149,8 +148,8 @@ const Register = () => {
         switch (step) {
             case 1:
                 return (
-                    <FirstStep 
-                        handleSubmit={handleFirstSubmit} 
+                    <FirstStep
+                        handleSubmit={handleFirstSubmit}
                         setNisn={setNisn}
                         errorMsg={handleErrorMsg}
                     />
@@ -181,12 +180,12 @@ const Register = () => {
                 return null;
         }
     }
-    
+
     return (
         <>
             <div className="flex w-full lg:grid lg:grid-cols-5 min-h-screen">
                 <div className="hidden lg:flex lg:justify-center lg:col-span-2 relative w-full h-full py-32">
-                    <img src={Image} alt="Background" className="absolute inset-0 object-cover w-full h-full z-0"/>
+                    <img src={Image} alt="Background" className="absolute inset-0 object-cover w-full h-full z-0" />
                     <div className="absolute inset-0 bg-red-600 opacity-60 z-10"></div>
                     <h1 className="flex flex-col font-extrabold text-white z-20">
                         <div className="text-5xl mb-3 [text-shadow:_-3px_5px_0_#000]">Pendaftaran</div>
@@ -201,7 +200,7 @@ const Register = () => {
                 <div className="w-full lg:col-span-3 bg-white">
                     <div className="flex w-full h-full justify-center items-center">
                         <div className="flex flex-col justify-between min-h-[70vh] lg:min-w-[50%]">
-                            <div className="flex flex-col">                              
+                            <div className="flex flex-col">
                                 {renderStep()}
                             </div>
                             <div className="flex gap-2 py-4 justify-center">
@@ -215,44 +214,44 @@ const Register = () => {
             </div>
         </>
     );
-    
+
 }
 
 const FirstStep = ({ handleSubmit, setNisn, errorMsg }) => {
-        return(
-            <>
-                <div className="text-3xl font-extrabold mb-5 lg:mb-10">Masukkan NISN/NIS</div>
-                <form onSubmit={handleSubmit}>
-                    <Input
-                        title="NISN"
-                        labelClassName="font-bold"
-                        type="text"
-                        name="nisn"
-                        placeHolder="Enter your NISN"
-                        onChange={(event) => setNisn(event.target.value)}
-                        className="w-full px-3 py-2 border border-black focus:border-blue-500 focus:ring-blue-500"
-                        errorMsg={errorMsg("nisn")}
-                    ></Input>
-                    <div className="flex justify-between gap-4 mb-3">
-                        <button 
-                            type="submit" 
-                            className="text-white text-sm text-center mt-3 py-3 px-7 bg-black font-bold
-                                hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"   
-                        >Lanjut</button>
-                        <button 
-                            type="submit" 
-                            className="text-white text-sm text-center mt-3 py-3 px-7 bg-gray-400 font-bold
-                                hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full invisible"   
-                        >Kembali</button>
-                    </div>
-                    <div className="text-sm">Sudah punya akun? <Link to="/login" className="font-semibold text-red-500 hover:underline">Masuk</Link></div>
-                </form>
-            </>
+    return (
+        <>
+            <div className="text-3xl font-extrabold mb-5 lg:mb-10">Masukkan NISN/NIS</div>
+            <form onSubmit={handleSubmit}>
+                <Input
+                    title="NISN"
+                    labelClassName="font-bold"
+                    type="text"
+                    name="nisn"
+                    placeHolder="Enter your NISN"
+                    onChange={(event) => setNisn(event.target.value)}
+                    className="w-full px-3 py-2 border border-black focus:border-blue-500 focus:ring-blue-500"
+                    errorMsg={errorMsg("nisn")}
+                ></Input>
+                <div className="flex justify-between gap-4 mb-3">
+                    <button
+                        type="submit"
+                        className="text-white text-sm text-center mt-3 py-3 px-7 bg-black font-bold
+                                hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"
+                    >Lanjut</button>
+                    <button
+                        type="submit"
+                        className="text-white text-sm text-center mt-3 py-3 px-7 bg-gray-400 font-bold
+                                hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full invisible"
+                    >Kembali</button>
+                </div>
+                <div className="text-sm">Sudah punya akun? <Link to="/login" className="font-semibold text-red-500 hover:underline">Masuk</Link></div>
+            </form>
+        </>
     );
 }
 
 const SecondStep = ({ handleSubmit, handleBack, alumni }) => {
-    return(
+    return (
         <>
             <div className="text-3xl font-extrabold mb-5 lg:mb-10">Verifikasi Identitas</div>
             <form onSubmit={handleSubmit}>
@@ -275,16 +274,16 @@ const SecondStep = ({ handleSubmit, handleBack, alumni }) => {
                     className="w-full px-3 py-2 border border-black focus:border-blue-500 focus:ring-blue-500"
                 ></Input>
                 <div className="flex justify-between gap-4">
-                    <button 
+                    <button
                         type="button"
                         onClick={handleBack}
                         className="text-white text-sm text-center mt-3 py-3 px-7 bg-gray-400 font-bold
-                            hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"   
+                            hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"
                     >Kembali</button>
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         className="text-white text-sm text-center mt-3 py-3 px-7 bg-black font-bold
-                            hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"   
+                            hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"
                     >Lanjut</button>
                 </div>
             </form>
@@ -292,8 +291,8 @@ const SecondStep = ({ handleSubmit, handleBack, alumni }) => {
     );
 }
 
-const ThirdStep = ({ handleSubmit, handleBack, setEmail, setUsername, setPassword, setConfirmPassword, valueUsername, valueEmail, errorMsg}) => {
-    return(
+const ThirdStep = ({ handleSubmit, handleBack, setEmail, setUsername, setPassword, setConfirmPassword, valueUsername, valueEmail, errorMsg }) => {
+    return (
         <>
             <div className="text-3xl font-extrabold mb-5 lg:mb-10">Isi Data Akun</div>
             <form onSubmit={handleSubmit}>
@@ -340,16 +339,16 @@ const ThirdStep = ({ handleSubmit, handleBack, setEmail, setUsername, setPasswor
                     errorMsg={errorMsg("confirm_password")}
                 ></Input>
                 <div className="flex justify-between gap-4">
-                    <button 
+                    <button
                         type="button"
                         onClick={handleBack}
                         className="text-white text-sm text-center mt-3 py-3 px-7 bg-gray-400 font-bold
-                            hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"   
+                            hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"
                     >Kembali</button>
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         className="text-white text-sm text-center mt-3 py-3 px-7 bg-black font-bold
-                            hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"   
+                            hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 w-full"
                     >Daftar</button>
                 </div>
             </form>

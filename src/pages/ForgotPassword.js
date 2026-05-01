@@ -1,62 +1,51 @@
 import { useEffect, useState } from 'react';
-import Input from './../components/Input';
+import Input from '../components/Input';
 import Background from './../images/bg.jpg';
 import TSLogo from './../images/ts-logo.png';
 import Image from './../images/bg-2.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { apiPost } from '../api/apiClient';
+import { AUTH } from '../api/endpoints';
 
-const Login = () => {
-    const { jwtToken, login } = useAuth();
+const ForgotPassword = () => {
+    const { jwtToken } = useAuth();
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [error, setError] = useState(false);
+    const [success, setSuccess] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();
 
-    const hasError = (key) => {
-        return errors.indexOf(key) !== -1;
-    }
-
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setIsLoading(true);
-        setError(false);
 
-        let errors = [];
-        let required = [
-            { field: email, name: "email" },
-            { field: password, name: "password" },
-        ]
-
-        required.forEach(function (obj) {
-            if (obj.field === "") {
-                errors.push(obj.name);
-            }
-        })
-
-        setErrors(errors);
-
-        if (errors.length > 0) {
-            setIsLoading(false);
-            return false;
+        if (!email.trim()) {
+            setError("Email harus diisi.");
+            setSuccess("");
+            return;
         }
+
+        setIsLoading(true);
+        setError("");
+        setSuccess("");
 
         try {
-            const result = await login(email, password);
+            const result = await apiPost(AUTH.FORGOT_PASSWORD, {
+                email: email
+            });
 
             if (result.error) {
-                setError(true);
-                setIsLoading(false);
+                setError(result.error);
             } else {
-                navigate("/");
+                setSuccess("Email berhasil terkirim. Mohon cek email kamu.");
             }
         } catch (err) {
-            console.log(err);
+            setError("Gagal mengirim request. Coba lagi.");
         }
-    }
+
+        setIsLoading(false);
+    };
 
     useEffect(() => {
         if (jwtToken !== "") {
@@ -70,7 +59,6 @@ const Login = () => {
                 <img src={Background} alt="Background" className="absolute inset-0 object-cover w-full h-full -z-20" />
                 <div className="absolute inset-0 bg-red-600 opacity-60 -z-10"></div>
                 <div className="flex lg:grid lg:grid-cols-2 gap-10 xl:gap-24 items-start">
-                    {/* <img src={Logo} className="absolute top-0 left-0 w-48 h-auto m-5 p-2 hover:shadow-lg" alt="Student" /> */}
                     <div className="hidden lg:flex items-center justify-center">
                         <h1 className="flex flex-col font-extrabold text-white absolute top-32">
                             <div className="flex gap-3 items-center justify-center">
@@ -87,7 +75,7 @@ const Login = () => {
                     </div>
                     <div className="flex justify-center xl:px-12 w-full lg:min-w-[450px] xl:min-w-[525px]">
                         <div className="flex flex-col w-full bg-white shadow-lg shadow-black py-8 px-10 border-2 border-black">
-                            <h2 className="text-2xl font-extrabold mb-4">Login</h2>
+                            <h2 className="text-2xl font-extrabold mb-4">Reset Password</h2>
                             <form onSubmit={handleSubmit} className="mb-5">
                                 <Input
                                     title="Email"
@@ -95,33 +83,20 @@ const Login = () => {
                                     name="email"
                                     placeHolder="Email"
                                     onChange={(event) => setEmail(event.target.value)}
-                                    className="w-64 lg:w-full px-3 py-2 border-2 border-black focus:border-blue-300 focus:ring-blue-300"
-                                    autoComplete="email"
-                                    errorMsg={hasError("email") ? "Please enter your email" : ""}
-                                ></Input>
-                                <Input
-                                    title="Password"
-                                    type="password"
-                                    name="password"
-                                    placeHolder="Password"
-                                    marginBottom="mb-1"
-                                    onChange={(event) => setPassword(event.target.value)}
                                     className="w-64 lg:w-full px-3 py-2 border-2 border-black focus:border-blue-300 focus:ring-blue-300 mb-0"
-                                    errorMsg={hasError("password") ? "Please enter your password" : ""}
                                 ></Input>
-                                <div className={`mb-3 text-sm font-medium text-red-500 dark:text-red-400 ${!error ? "invisible" : ""}`} role="alert">
-                                    Email atau password salah.
+                                <div className={`mb-3 text-sm font-medium ${error ? "text-red-500 dark:text-red-400" : success ? "" : "invisible"}`} role="alert">
+                                    {error || success || "placeholder"}
                                 </div>
                                 <button
                                     type="submit"
                                     className="text-white text-sm text-center py-3 px-7 bg-black font-bold hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 disabled:bg-gray-400"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Loading...' : 'Login'}
+                                    {isLoading ? 'Loading...' : 'Kirim'}
                                 </button>
                             </form>
-                            <div className="text-sm">Belum punya akun? <Link to="/register" className="font-semibold text-red-500 hover:underline">Daftar</Link></div>
-                            <div className="text-sm mt-1">Lupa password? <Link to="/forgot_password" className="font-semibold text-red-500 hover:underline">Reset Password</Link></div>
+                            <div className="text-sm">Sudah punya akun? <Link to="/login" className="font-semibold text-red-500 hover:underline">Login</Link></div>
                         </div>
                     </div>
                 </div>
@@ -131,4 +106,4 @@ const Login = () => {
 
 }
 
-export default Login;
+export default ForgotPassword;

@@ -1,35 +1,77 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from "react-router-dom";
 import Input from '../components/Input';
 import Background from './../images/bg.jpg';
 import TSLogo from './../images/ts-logo.png';
 import Image from './../images/bg-2.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { apiPost } from '../api/apiClient';
+import { AUTH } from '../api/endpoints';
 
 const ResetPassword = () => {
-    const { jwtToken, login } = useAuth();
-    const [email, setEmail] = useState("");
+    const { jwtToken } = useAuth();
     const [password, setPassword] = useState("");
-    const [error, setError] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get("token");
 
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setIsLoading(true);
-        setError(false);
 
-        const result = await login(email, password);
+        setError("");
+        setSuccess("");
+
+        if (!password.trim()) {
+            setError("Password harus diisi.");
+            return;
+        }
+
+        if (!confirmPassword.trim()) {
+            setError("Konfirmasi password harus diisi.");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError("Password tidak sama.");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const result = await apiPost(AUTH.RESET_PASSWORD, {
+                token: token,
+                password: password
+            });
+
+            if (result.error) {
+                setError(result.message);
+            } else {
+                setSuccess("Password berhasil diubah. Mohon login kembali.");
+            }
+        } catch (err) {
+            setError(err?.response?.data?.message || "Terjadi kesalahan. Coba lagi.");
+        }
 
         setIsLoading(false);
+    };
 
-        if (result.error) {
-            setError(true);
+    useEffect(() => {
+        if (!confirmPassword) return;
+
+        if (password !== confirmPassword) {
+            setError("Password tidak sama.");
         } else {
-            navigate("/");
+            setError("");
         }
-    }
+    }, [password, confirmPassword]);
 
     useEffect(() => {
         if (jwtToken !== "") {
@@ -62,25 +104,26 @@ const ResetPassword = () => {
                         <div className="flex flex-col w-full bg-white shadow-lg shadow-black py-8 px-10 border-2 border-black">
                             <h2 className="text-2xl font-extrabold mb-4">Reset Password</h2>
                             <form onSubmit={handleSubmit} className="mb-5">
-                                {/* <Input
-                                    title="Email"
-                                    type="text"
-                                    name="email"
-                                    placeHolder="Email"
-                                    onChange={(event) => setEmail(event.target.value)}
-                                    className="w-64 lg:w-full px-3 py-2 border-2 border-black focus:border-blue-300 focus:ring-blue-300"
-                                    autoComplete="email"
-                                ></Input> */}
                                 <Input
-                                    title="Email"
-                                    type="text"
-                                    name="email"
-                                    placeHolder="Email"
-                                    onChange={(event) => setEmail(event.target.value)}
-                                    className="w-64 lg:w-full px-3 py-2 border-2 border-black focus:border-blue-300 focus:ring-blue-300 mb-0"
+                                    title="Password"
+                                    labelClassName="font-bold"
+                                    type="password"
+                                    name="password"
+                                    placeHolder="Enter your Password"
+                                    onChange={(event) => setPassword(event.target.value)}
+                                    className="w-full px-3 py-2 border border-black focus:border-blue-500 focus:ring-blue-500"
                                 ></Input>
-                                <div className={`mb-3 text-sm font-medium text-red-500 dark:text-red-400 ${!error ? "invisible" : ""}`} role="alert">
-                                    Email harus diisi.
+                                <Input
+                                    title="Konfirmasi Password"
+                                    labelClassName="font-bold"
+                                    type="password"
+                                    name="confirm_password"
+                                    placeHolder="Enter your Password"
+                                    onChange={(event) => setConfirmPassword(event.target.value)}
+                                    className="w-full px-3 py-2 border border-black focus:border-blue-500 focus:ring-blue-500"
+                                ></Input>
+                                <div className={`mb-3 text-sm font-medium ${error ? "text-red-500 dark:text-red-400" : success ? "" : "invisible"}`} role="alert">
+                                    {error || success || "placeholder"}
                                 </div>
                                 <button
                                     type="submit"

@@ -5,7 +5,9 @@ export const AUTH = {
     REGISTER: '/register',
     LOGIN: '/authenticate',
     LOGOUT: '/logout',
-    REFRESH: '/refresh'
+    REFRESH: '/refresh',
+    FORGOT_PASSWORD: '/forgot_password',
+    RESET_PASSWORD: '/reset_password'
 };
 
 export const PROFILE = {

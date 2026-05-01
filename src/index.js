@@ -38,6 +38,7 @@ import Survey from './pages/Survey/Survey';
 import SurveySetting from './pages/Survey/SurveySettting';
 import Jobs from './pages/Job/Jobs';
 import Job from './pages/Job/Job';
+import ForgotPassword from './pages/ForgotPassword';
 
 
 const router = createBrowserRouter([
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/forgot_password",
+        element: <ForgotPassword />,
       },
       {
         path: "/reset_password",
