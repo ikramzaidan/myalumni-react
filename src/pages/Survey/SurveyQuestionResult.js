@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import PieChart from "../../components/PieChart";
 import { apiGet } from "../../api/apiClient";
@@ -14,7 +14,7 @@ const SurveyQuestionResult = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(!isAdmin) {
+        if (!isAdmin) {
             navigate("/");
         }
     }, [isAdmin, navigate]);
@@ -36,7 +36,7 @@ const SurveyQuestionResult = () => {
 
     return (
         <>
-            
+
             <div className={`flex border rounded-xl shadow-md`}>
                 <div className="flex flex-col w-full text-left p-5">
                     <div className="flex w-full mb-5">

@@ -137,7 +137,7 @@ const ShowProfile = () => {
             {/* <pre>{JSON.stringify(profile, null, 3)}</pre> */}
             <div className="flex flex-col gap-4">
                 <div className="relative border rounded-xl shadow-md">
-                    <div className="absolute -z-10 rounded-xl rounded-b-none w-full h-32 bg-red-400"></div>
+                    <div className="absolute -z-10 rounded-xl rounded-b-none w-full h-32 bg-gray-400"></div>
                     <div className="flex flex-col p-5 pt-16">
                         <div className="bg-gray-300 rounded-full w-36 h-36 aspect-square overflow-hidden border-4 border-white">
                             <img src={profile.photo && profile.photo !== "" ? `${process.env.REACT_APP_API_URL}/${profile.photo}` : `${process.env.REACT_APP_API_URL}/public/no-image.png`} className="object-cover w-full h-full" alt="Profile" />

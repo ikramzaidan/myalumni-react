@@ -2,7 +2,7 @@ import React from 'react';
 import moment from 'moment-timezone';
 
 function formatDateTime(dateTimeStr) {
-    const dateTime = moment.parseZone(dateTimeStr).tz('Asia/Jakarta', true);
+    const dateTime = moment.utc(dateTimeStr).tz('Asia/Jakarta');
     const currentTime = moment().tz('Asia/Jakarta');
 
     // Menghitung perbedaan waktu dalam menit
@@ -27,14 +27,14 @@ function formatDateTime(dateTimeStr) {
     }
 
 }
-  
+
 
 function DateTimeDisplay({ dateTimeStr }) {
-  const formattedDateTime = formatDateTime(dateTimeStr);
+    const formattedDateTime = formatDateTime(dateTimeStr);
 
-  return (
-    <span>{formattedDateTime}</span>
-  );
+    return (
+        <span>{formattedDateTime}</span>
+    );
 }
 
 export default DateTimeDisplay;

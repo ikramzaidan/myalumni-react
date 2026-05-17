@@ -6,9 +6,19 @@ import { IoAdd, IoCheckbox, IoDocumentText } from "react-icons/io5";
 import { apiGet } from "../../api/apiClient";
 
 const Surveys = () => {
+    const now = new Date();
     const { jwtToken, isAdmin } = useAuth();
     const [surveys, setSurveys] = useState([]);
     const [answers, setAnswers] = useState([]);
+    const visibleSurveys = surveys.filter(s => {
+        if (s.hidden) return false;
+
+        if (s.has_time_limit) {
+            return new Date(s.end_date) >= now;
+        }
+
+        return true;
+    });
     const filledSurveyIds = new Set((answers || []).map(answer => answer.form_id));
 
     useEffect(() => {
@@ -44,26 +54,38 @@ const Surveys = () => {
                 ) : ("")}
             </div>
             <div className="flex flex-col gap-3">
-                {!surveys || surveys.length === 0 ? (
+                {!isAdmin && visibleSurveys.length === 0 ? (
                     <div className="flex flex-col w-full h-64 justify-center items-center text-gray-400">
-                        <div className="text-6xl mb-2"><IoDocumentText /></div>
-                        <div className="text-2xl font-bold">Belum ada Survey.</div>
+                        <div className="text-6xl mb-2">
+                            <IoDocumentText />
+                        </div>
+                        <div className="text-2xl font-bold">
+                            Belum ada Survey.
+                        </div>
                     </div>
                 ) : (
                     <>
                         {!isAdmin ? (
                             <>
-                                {surveys.filter(s => s.hidden === false).map((s) => (
+                                {visibleSurveys.map((s) => (
                                     <div key={s.id}>
                                         {filledSurveyIds.has(s.id) ? (
                                             <div className="border rounded-xl shadow-md p-4">
                                                 <div className="flex justify-between items-center gap-3">
                                                     <div className="flex flex-col gap-1">
                                                         <div className="flex items-center gap-1">
-                                                            <h3 className="text-lg font-bold line-clamp-1">{s.title}</h3>
-                                                            <div className="text-lg text-green-400"><IoCheckbox title="Jawaban terkirim" /></div>
+                                                            <h3 className="text-lg font-bold line-clamp-1">
+                                                                {s.title}
+                                                            </h3>
+
+                                                            <div className="text-lg text-green-400">
+                                                                <IoCheckbox title="Jawaban terkirim" />
+                                                            </div>
                                                         </div>
-                                                        <p className="font-light line-clamp-2">{s.description}</p>
+
+                                                        <p className="font-light line-clamp-2">
+                                                            {s.description}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -72,10 +94,19 @@ const Surveys = () => {
                                                 <div className="border rounded-xl shadow-md p-4">
                                                     <div className="flex justify-between items-center gap-3">
                                                         <div className="flex flex-col gap-1">
-                                                            <h3 className="text-lg font-bold line-clamp-1">{s.title}</h3>
-                                                            <p className="font-light line-clamp-2">{s.description}</p>
+                                                            <h3 className="text-lg font-bold line-clamp-1">
+                                                                {s.title}
+                                                            </h3>
+
+                                                            <p className="font-light line-clamp-2">
+                                                                {s.description}
+                                                            </p>
                                                         </div>
-                                                        <IoIosArrowForward className="text-xl text-gray-400 stroke-w-2" title="Edit" />
+
+                                                        <IoIosArrowForward
+                                                            className="text-xl text-gray-400 stroke-w-2"
+                                                            title="Edit"
+                                                        />
                                                     </div>
                                                 </div>
                                             </Link>
@@ -86,17 +117,30 @@ const Surveys = () => {
                         ) : (
                             <>
                                 {surveys.map((s) => (
-                                    <div key={s.id} className="border rounded-xl shadow-md p-4">
+                                    <div
+                                        key={s.id}
+                                        className="border rounded-xl shadow-md p-4"
+                                    >
                                         <div className="flex justify-between items-center">
-                                            <Link to={`/surveys/${s.id}`}><h3 className="text-lg font-semibold line-clamp-1">{s.title}</h3></Link>
-                                            <Link to={`/surveys/${s.id}`}><IoIosArrowForward className="text-xl text-gray-400" title="Edit" /></Link>
+                                            <Link to={`/surveys/${s.id}`}>
+                                                <h3 className="text-lg font-semibold line-clamp-1">
+                                                    {s.title}
+                                                </h3>
+                                            </Link>
+
+                                            <Link to={`/surveys/${s.id}`}>
+                                                <IoIosArrowForward
+                                                    className="text-xl text-gray-400"
+                                                    title="Edit"
+                                                />
+                                            </Link>
                                         </div>
-                                    </div>))}
+                                    </div>
+                                ))}
                             </>
                         )}
                     </>
                 )}
-
             </div>
 
         </>

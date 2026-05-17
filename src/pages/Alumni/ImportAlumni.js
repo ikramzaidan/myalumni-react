@@ -1,13 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUpload } from "react-icons/fa6";
 import { IoCaretDown, IoCaretUp } from "react-icons/io5";
 import { MdCancel } from "react-icons/md";
 import { apiPost } from "../../api/apiClient";
+import { Link } from "react-router-dom";
 
 const ImportAlummi = () => {
-    const { jwtToken } = useAuth();
+    const { isAdmin } = useAuth();
     const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();
@@ -15,6 +16,12 @@ const ImportAlummi = () => {
     const [students, setStudents] = useState([]);
     const [fileName, setFileName] = useState("");
     const [showPreview, setShowPreview] = useState(true);
+
+    useEffect(() => {
+        if (!isAdmin) {
+            navigate('/');
+        }
+    });
 
     const handleShowPreview = () => {
         setShowPreview((prev) => !prev);
@@ -85,64 +92,64 @@ const ImportAlummi = () => {
             <div className="w-full flex flex-col items-center border-dashed border-4 rounded-xl p-5 mb-8">
                 {!fileName ? (
                     <>
-                    <input id="file" type="file" name="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
-                    <label htmlFor="file" className="flex flex-col items-center gap-2">
-                        <FaUpload className="text-4xl text-gray-400" />
-                        <div className="flex flex-col items-center">
-                            <div className="text-gray-600 font-bold">Pilih file di komputer anda</div>
-                            <div className="text-gray-600 text-sm font-normal">File harus memiliki ekstensi .xlsx</div>
-                        </div>
-                    </label>
+                        <input id="file" type="file" name="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
+                        <label htmlFor="file" className="flex flex-col items-center gap-2 mb-5 cursor-pointer">
+                            <FaUpload className="text-4xl text-gray-400" />
+                            <div className="flex flex-col items-center">
+                                <div className="text-gray-600 font-bold">Pilih file di komputer anda</div>
+                                <div className="text-gray-600 text-sm font-normal">File harus memiliki ekstensi .xlsx</div>
+                            </div>
+                        </label>
+                        <div className="text-gray-600 text-sm font-normal cursor-pointer hover:underline underline-offset-2"><a href={`${process.env.REACT_APP_API_URL}/excel/DaftarAlumniContoh.xlsx`}>Download contoh file</a></div>
                     </>
                 ) : (
                     <>
-                    <div className="flex items-center gap-1 mb-3">
-                        {fileName}
-                        <button onClick={handleDeleteFile} className="text-gray-400"><MdCancel /></button>
-                    </div>
-                    <button onClick={handleSubmit} className="bg-red-500 px-5 py-2 text-white font-bold hover:bg-red-400">Simpan</button>
+                        <div className="flex items-center gap-1 mb-3">
+                            {fileName}
+                            <button onClick={handleDeleteFile} className="text-gray-400"><MdCancel /></button>
+                        </div>
+                        <button onClick={handleSubmit} className="bg-red-500 px-5 py-2 text-white font-bold hover:bg-red-400">Simpan</button>
                     </>
                 )}
-                
             </div>
             {!students || students.length === 0 ? ("") : (
-            <>
-                <div className="flex justify-between items-center mb-5">
-                    <div className="flex items-center gap-1">
-                        <div className="text-lg font-bold">Pratinjau</div> 
-                        <button className="text-gray-600" type="button" onClick={handleShowPreview}>{!showPreview ? (<IoCaretDown />) : (<IoCaretUp />)}</button>
+                <>
+                    <div className="flex justify-between items-center mb-5">
+                        <div className="flex items-center gap-1">
+                            <div className="text-lg font-bold">Pratinjau</div>
+                            <button className="text-gray-600" type="button" onClick={handleShowPreview}>{!showPreview ? (<IoCaretDown />) : (<IoCaretUp />)}</button>
+                        </div>
+                        <p>{students.length + 1} Baris</p>
                     </div>
-                    <p>{students.length + 1} Baris</p>
-                </div>
-                {!showPreview ? ("") : (
-                    <table className="w-full text-s text-left overflow-x-auto">
-                        <thead className="text-xs font-semibold border-b border-t text-dark-grey uppercase">
-                            <tr>
-                                <th className="p-3 text-center">NISN</th>
-                                <th className="p-3 text-center">NIS</th>
-                                <th className="p-3 text-center">Nama</th>
-                                <th className="p-3 text-center">Jenis Kelamin</th>
-                                <th className="p-3 text-center">Telepon</th>
-                                <th className="p-3 text-center">Tahun Lulus</th>
-                                <th className="p-3 text-center">Kelas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {students.map((s, index) => (
-                            <tr className="bg-white text-darker-black text-xs lg:text-sm border-b" key={index}>
-                                <td className="p-3 text-center">{s.nisn}</td>
-                                <td className="p-3 text-center">{s.nis}</td>
-                                <td className="p-3 text-center">{s.name}</td>
-                                <td className="p-3 text-center">{s.gender}</td>
-                                <td className="p-3 text-center">{s.phone}</td>
-                                <td className="p-3 text-center">{s.graduation_year}</td>
-                                <td className="p-3 text-center">{s.class}</td>
-                            </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </>
+                    {!showPreview ? ("") : (
+                        <table className="w-full text-s text-left overflow-x-auto">
+                            <thead className="text-xs font-semibold border-b border-t text-dark-grey uppercase">
+                                <tr>
+                                    <th className="p-3 text-center">NISN</th>
+                                    <th className="p-3 text-center">NIS</th>
+                                    <th className="p-3 text-center">Nama</th>
+                                    <th className="p-3 text-center">Jenis Kelamin</th>
+                                    <th className="p-3 text-center">Telepon</th>
+                                    <th className="p-3 text-center">Tahun Lulus</th>
+                                    <th className="p-3 text-center">Kelas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {students.map((s, index) => (
+                                    <tr className="bg-white text-darker-black text-xs lg:text-sm border-b" key={index}>
+                                        <td className="p-3 text-center">{s.nisn}</td>
+                                        <td className="p-3 text-center">{s.nis}</td>
+                                        <td className="p-3 text-center">{s.name}</td>
+                                        <td className="p-3 text-center">{s.gender}</td>
+                                        <td className="p-3 text-center">{s.phone}</td>
+                                        <td className="p-3 text-center">{s.graduation_year}</td>
+                                        <td className="p-3 text-center">{s.class}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </>
             )}
         </>
     );

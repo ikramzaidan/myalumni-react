@@ -186,7 +186,7 @@ const Home = () => {
                                         <div key={a.id} className="border rounded-xl shadow-md p-4">
                                             <div className="flex flex-col gap-3">
                                                 <div className="flex">
-                                                    <img src={a.image ? a.image : `${process.env.REACT_APP_API_URL}/public/no-image.png`} className="aspect-[16/9] object-cover rounded-lg" alt={a.title}></img>
+                                                    <img src={a.image !== "public/no-image.png" ? a.image : `${process.env.REACT_APP_API_URL}/public/no-image.png`} className="aspect-[16/9] object-cover rounded-lg" alt={a.title}></img>
                                                 </div>
                                                 <div className="flex flex-col justify-start pe-3">
                                                     <Link to={`/articles/${a.id}`}><h3 className="text-xl font-bold line-clamp-1 capitalize">{a.title}</h3></Link>
@@ -226,7 +226,7 @@ const Home = () => {
                     </div>
 
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-lg font-bold">Alumni Baru</h2>
+                        <h2 className="text-lg font-bold">Profil Alumni Baru</h2>
                         <Link className="text-gray-500 text-sm font-bold">Lihat semua</Link>
                     </div>
                     {!dashboard.profiles || dashboard.profiles === 0 ? (

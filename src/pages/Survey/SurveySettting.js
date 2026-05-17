@@ -8,13 +8,10 @@ import { apiRequest } from "../../api/apiClient";
 
 const SurveySetting = () => {
     let { id } = useParams();
-    const { jwtToken, isAdmin } = useAuth();
+    const { isAdmin } = useAuth();
     const { survey } = useOutletContext();
     const { setSurvey } = useOutletContext();
     const { setSurveyUpdated } = useOutletContext();
-
-    const [isSwitched, setIsSwithed] = useState(false);
-    const [isSwitched2, setIsSwithed2] = useState(false);
 
     const [errors, setErrors] = useState([]);
 
@@ -48,15 +45,10 @@ const SurveySetting = () => {
 
     const handleChange = () => (event) => {
         const { name, value } = event.target;
-        let formattedValue = value;
-
-        if (event.target.type === "datetime-local") {
-            formattedValue = convertToFormattedDateTime(value);
-        }
 
         setSurvey({
             ...survey,
-            [name]: formattedValue,
+            [name]: value,
         })
     }
 
@@ -85,7 +77,16 @@ const SurveySetting = () => {
             return false;
         }
 
-        const requestBody = survey;
+        const requestBody = {
+            ...survey,
+            start_date: survey.start_date
+                ? new Date(survey.start_date).toISOString()
+                : null,
+
+            end_date: survey.end_date
+                ? new Date(survey.end_date).toISOString()
+                : null,
+        };
 
         apiRequest(`/forms/${id}`, { method: 'PATCH', body: JSON.stringify(requestBody) })
             .then((data) => {
@@ -102,12 +103,15 @@ const SurveySetting = () => {
 
     const formatDateTimeLocal = (isoString) => {
         if (!isoString) return "";
-        return isoString.slice(0, 16); // format to 'YYYY-MM-DDTHH:MM'
-    };
 
-    const convertToFormattedDateTime = (dateTimeString) => {
-        return `${dateTimeString}:00Z`;
-    }
+        const date = new Date(isoString);
+
+        const timezoneOffset = date.getTimezoneOffset() * 60000;
+
+        const localDate = new Date(date.getTime() - timezoneOffset);
+
+        return localDate.toISOString().slice(0, 16);
+    };
 
     return (
         <>
@@ -140,19 +144,19 @@ const SurveySetting = () => {
                                 <div className="text-gray-400 text-sm font-light">Ubah batas waktu survei untuk memberikan batas waktu pengisian survei.</div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <label className="font-semibold hidden lg:block">{survey.has_time_limit === "false" ? "Tidak terbatas" : "Terbatas"}</label>
+                                <label className="font-semibold hidden lg:block">{survey.has_time_limit === false ? "Tanpa batas waktu" : "Terbatas waktu"}</label>
                                 <div onClick={handleSwitch("limit")}
                                     className={classNames("flex h-6 w-12 rounded-full outline-none p-[0.1rem] transition-all duration-300 cursor-pointer", {
-                                        "bg-red-400": isSwitched2,
-                                        "bg-gray-200": !isSwitched2
+                                        "bg-red-400": survey.has_time_limit !== false,
+                                        "bg-gray-200": survey.has_time_limit === false
                                     })}>
                                     <span className={classNames("h-full aspect-square rounded-full bg-white transition-all duration-300", {
-                                        "ml-6": isSwitched2
+                                        "ml-6": survey.has_time_limit !== false
                                     })}></span>
                                 </div>
                             </div>
                         </div>
-                        <div className={`flex-col gap-3 ` + (survey.has_time_limit === "true" ? "flex" : "hidden")}>
+                        <div className={`flex-col gap-3 ` + (survey.has_time_limit === true ? "flex" : "hidden")}>
                             <div className="flex flex-col lg:flex-row lg:justify-between items-start lg:items-center">
                                 <div className="mb-2 lg:mb-0">
                                     <label>Waktu mulai</label>

@@ -24,7 +24,7 @@ const AddSurvey = () => {
     const [survey, setSurvey] = useState({
         title: "",
         description: "",
-        has_time_limit: "false",
+        has_time_limit: false,
         start_date: "2022-07-20T20:00:00Z",
         end_date: "2022-07-20T20:00:00Z",
     });

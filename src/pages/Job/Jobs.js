@@ -104,7 +104,7 @@ const Jobs = () => {
 
         const requestBody = job;
 
-        apiPost(`/jobs/create`, requestBody)
+        apiPost(`/jobs`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);

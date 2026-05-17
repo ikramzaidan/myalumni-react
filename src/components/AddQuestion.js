@@ -6,7 +6,6 @@ import { IoClose } from "react-icons/io5";
 import { apiPost } from "../api/apiClient";
 
 const AddQuestion = (props) => {
-    const { jwtToken } = useOutletContext();
     const { setAlertMessage } = useOutletContext();
 
     const [errors, setErrors] = useState([]);
@@ -27,10 +26,6 @@ const AddQuestion = (props) => {
             ...question,
             [name]: value,
         })
-    }
-
-    const hasError = (key) => {
-        return errors.indexOf(key) !== -1;
     }
 
     const handleSubmit = (event) => {

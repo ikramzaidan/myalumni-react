@@ -74,7 +74,7 @@ const AddAlummi = () => {
 
         const requestBody = student;
 
-        apiPost(`/alumni/create`, requestBody)
+        apiPost(`/alumni`, requestBody)
             .then((data) => {
                 if (data.error) {
                     console.log(data.error);

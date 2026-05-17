@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { apiGet } from "../../api/apiClient";
 
@@ -12,7 +12,7 @@ const SurveyResult = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(!isAdmin) {
+        if (!isAdmin) {
             navigate("/");
         }
     }, [isAdmin, navigate]);
@@ -31,7 +31,7 @@ const SurveyResult = () => {
     const handleFocusQuestion = (id) => {
         if (focusQuestionId !== id) {
             setFocusQuestionId(id); // Setel id pertanyaan untuk memulai mode edit
-        }   
+        }
     };
 
     return (
