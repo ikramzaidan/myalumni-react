@@ -10,7 +10,10 @@ const Surveys = () => {
     const { jwtToken, isAdmin } = useAuth();
     const [surveys, setSurveys] = useState([]);
     const [answers, setAnswers] = useState([]);
-    const visibleSurveys = surveys.filter(s => {
+    const safeSurveys = Array.isArray(surveys) ? surveys : [];
+    const safeAnswers = Array.isArray(answers) ? answers : [];
+    const visibleSurveys = safeSurveys.filter((s) => {
+        if (!s) return false;
         if (s.hidden) return false;
 
         if (s.has_time_limit) {
@@ -19,13 +22,13 @@ const Surveys = () => {
 
         return true;
     });
-    const filledSurveyIds = new Set((answers || []).map(answer => answer.form_id));
+    const filledSurveyIds = new Set(safeAnswers.map((answer) => answer?.form_id));
 
     useEffect(() => {
         if (jwtToken !== "") {
             apiGet('/forms')
                 .then((data) => {
-                    setSurveys(data);
+                    setSurveys(Array.isArray(data) ? data : []);
                 })
                 .catch(err => {
                     console.log(err);
@@ -34,7 +37,7 @@ const Surveys = () => {
             if (!isAdmin) {
                 apiGet('/answers')
                     .then((data) => {
-                        setAnswers(data);
+                        setAnswers(Array.isArray(data) ? data : []);
                     })
                     .catch(err => {
                         console.log(err);
@@ -116,27 +119,40 @@ const Surveys = () => {
                             </>
                         ) : (
                             <>
-                                {surveys.map((s) => (
-                                    <div
-                                        key={s.id}
-                                        className="border rounded-xl shadow-md p-4"
-                                    >
-                                        <div className="flex justify-between items-center">
-                                            <Link to={`/surveys/${s.id}`}>
-                                                <h3 className="text-lg font-semibold line-clamp-1">
-                                                    {s.title}
-                                                </h3>
-                                            </Link>
-
-                                            <Link to={`/surveys/${s.id}`}>
-                                                <IoIosArrowForward
-                                                    className="text-xl text-gray-400"
-                                                    title="Edit"
-                                                />
-                                            </Link>
+                                {safeSurveys.length === 0 ? (
+                                    <div className="flex flex-col w-full h-64 justify-center items-center text-gray-400">
+                                        <div className="text-6xl mb-2">
+                                            <IoDocumentText />
+                                        </div>
+                                        <div className="text-2xl font-bold">
+                                            Belum ada Survey.
                                         </div>
                                     </div>
-                                ))}
+                                ) : (
+                                    <>
+                                    {safeSurveys.map((s) => (
+                                        <div
+                                            key={s.id}
+                                            className="border rounded-xl shadow-md p-4"
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <Link to={`/surveys/${s.id}`}>
+                                                    <h3 className="text-lg font-semibold line-clamp-1">
+                                                        {s.title}
+                                                    </h3>
+                                                </Link>
+
+                                                <Link to={`/surveys/${s.id}`}>
+                                                    <IoIosArrowForward
+                                                        className="text-xl text-gray-400"
+                                                        title="Edit"
+                                                    />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    </>
+                                )}
                             </>
                         )}
                     </>
