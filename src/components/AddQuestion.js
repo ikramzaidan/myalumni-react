@@ -31,16 +31,16 @@ const AddQuestion = (props) => {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        setSubmitPending(true);
-
+        const trimmedQuestionText = question.question_text?.trim();
+        const selectedType = question.type?.trim();
         let errors = [];
         let required = [
-            { field: question.question_text, name: "question_text" },
-            { field: question.type, name: "type" },
+            { field: trimmedQuestionText, name: "question_text" },
+            { field: selectedType, name: "type" },
         ]
 
         required.forEach(function (obj) {
-            if (obj.field === "") {
+            if (!obj.field) {
                 errors.push(obj.name);
             }
         })
@@ -48,8 +48,12 @@ const AddQuestion = (props) => {
         setErrors(errors);
 
         if (errors.length > 0) {
+            setAlertMessage("Mohon lengkapi pertanyaan dan pilih tipe kuesioner terlebih dahulu.");
+            setSubmitPending(false);
             return false;
         }
+
+        setSubmitPending(true);
 
         const requestBody = question;
 
@@ -158,11 +162,11 @@ const AddQuestion = (props) => {
             <div className="flex gap-2 justify-between items-center">
                 <SelectInput
                     name="type"
-                    className="w-36 text-sm self-center px-2 py-2 border border-gray-300 rounded-md focus:ring-0 focus:border-gray-400"
+                    className="w-44 text-sm self-center px-2 py-2 border border-gray-300 rounded-md focus:ring-0 focus:border-gray-400"
                     value={question.type}
                     options={[{ value: "short_answer", label: "Jawaban Singkat" }, { value: "multiple_choice", label: "Pilihan Ganda" }]}
                     onChange={handleChange("type")}
-                    placeHolder={"Pilih tipe soal"}
+                    placeHolder={"Pilih tipe kuesioner"}
                     marginBottom="mb-0"
                 />
                 <button className={`${submitPending ? "animate-pulse cursor-not-allowed" : ""} text-xs font-semibold py-2 px-3 bg-black hover:bg-gray-500 text-white rounded-md`} onClick={handleSubmit} disabled={submitPending}>Simpan</button>
